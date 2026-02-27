@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Bungalows Map</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#111827">
+  <style>
+    html,body { margin:0; height:100%; font-family: system-ui, -apple-system, Segoe UI, Roboto; }
+    header {
+      padding: 10px 12px;
+      display:flex; gap:10px; align-items:center;
+      background:#111827; color:#fff;
+    }
+    header .title { font-weight:700; }
+    header a, header button {
+      color:#fff; text-decoration:none;
+      padding:6px 10px;
+      border:1px solid rgba(255,255,255,.2);
+      background: transparent;
+      border-radius:10px;
+      cursor:pointer;
+    }
+    iframe { width:100%; height:calc(100% - 52px); border:0; }
+    .note { opacity:.8; font-size:12px; margin-left:auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title">Bungalows</div>
+    <a href="./bungalows_map.html">Open map only</a>
+    <button onclick="reloadMap()">Refresh</button>
+    <div class="note" id="stamp"></div>
+  </header>
+
+  <iframe id="map" src="./bungalows_map.html"></iframe>
+
+  <script>
+    function reloadMap() {
+      const iframe = document.getElementById("map");
+      const url = new URL("./bungalows_map.html", window.location.href);
+      url.searchParams.set("t", Date.now());
+      iframe.src = url.toString();
+    }
+    document.getElementById("stamp").textContent = "Loaded: " + new Date().toLocaleString();
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
+  </script>
+</body>
+</html>
