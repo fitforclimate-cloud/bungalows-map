@@ -25,6 +25,9 @@ jobs:
 
       - name: Run script
         run: python generate_map.py
+      
+      - name: List files after run
+        run: ls -la
 
       - name: Commit outputs
         run: |
