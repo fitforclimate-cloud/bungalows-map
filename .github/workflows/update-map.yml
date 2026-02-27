@@ -36,3 +36,15 @@ jobs:
           git add bungalows_map.html bungalows_snapshot.csv bungalows_new.csv geo_cache.json reverse_cache.json || true
           git commit -m "Auto update map" || echo "No changes"
           git push
+      
+      - name: Debug funda HTML snippet
+        run: |
+          python - <<'PY'
+          import requests
+          url="https://www.funda.nl/zoeken/koop?selected_area=[%22regio-zuid-limburg,50km%22]&object_type=[%22house%22]&object_type_house=[%22bungalow%22]&publication_date=%2210%22&bedrooms=%222-%22"
+          r=requests.get(url, headers={"User-Agent":"Mozilla/5.0"}, timeout=30)
+          print("status:", r.status_code)
+          print("len:", len(r.text))
+          print("first500:", r.text[:500].replace("\\n"," "))
+          print("has_detail:", "/detail/koop/" in r.text)
+          PY
