@@ -50,12 +50,11 @@ CENTER_NAME = "Valkenburg aan de Geul, Nederland"
 CENTER_FALLBACK_LATLON = (50.8650, 5.8320)
 RADIUS_KM = 40
 
-OUT_SNAPSHOT_CSV = r"C:\\TEMP\\bungalows_snapshot.csv"
-OUT_NEW_CSV = r"C:\\TEMP\\bungalows_new.csv"
-OUT_MAP_HTML = r"C:\\TEMP\\bungalows_map.html"
-
-GEO_CACHE_JSON = r"C:\\TEMP\\geo_cache.json"
-REV_CACHE_JSON = r"C:\\TEMP\\reverse_cache.json"
+OUT_SNAPSHOT_CSV = "bungalows_snapshot.csv"
+OUT_NEW_CSV      = "bungalows_new.csv"
+OUT_MAP_HTML     = "bungalows_map.html"
+GEO_CACHE_JSON   = "geo_cache.json"
+REV_CACHE_JSON   = "reverse_cache.json"
 
 COLUMNS = [
     "scraped_at", "source", "title", "price_text", "location_text", "since_text", "url",
@@ -1255,3 +1254,4 @@ def run() -> None:
 
 if __name__ == "__main__":
     run()
+
