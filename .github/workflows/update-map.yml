@@ -14,6 +14,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Sync with origin
+        run: |
+          git pull --rebase
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -29,7 +32,6 @@ jobs:
       - name: Write build timestamp
         run: |
           date -u +"%Y-%m-%dT%H:%M:%SZ" > last_build_utc.txt
-          git add last_build_utc.txt
 
       - name: Debug outputs existence + changes
         run: |
@@ -68,11 +70,8 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
-          # Zorg dat je up-to-date bent vóór je commit
-          git pull --rebase
-
           # Add de files die zeker bestaan
-          git add bungalows_map.html bungalows_snapshot.csv bungalows_new.csv
+          git add bungalows_map.html bungalows_snapshot.csv bungalows_new.csv last_build_utc.txt
 
           # Add cache files alleen als ze bestaan
           test -f geo_cache.json && git add geo_cache.json || true
