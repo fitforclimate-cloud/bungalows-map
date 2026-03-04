@@ -31,11 +31,22 @@ jobs:
 
       - name: Commit outputs
         run: |
+          set -e
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add bungalows_map.html bungalows_snapshot.csv bungalows_new.csv geo_cache.json reverse_cache.json || true
-          git commit -m "Auto update map" || echo "No changes"
+
+          # Zorg dat je up-to-date bent vóór je commit
           git pull --rebase
+
+          # Add de files die zeker bestaan
+          git add bungalows_map.html bungalows_snapshot.csv bungalows_new.csv
+
+          # Add cache files alleen als ze bestaan
+          test -f geo_cache.json && git add geo_cache.json || true
+          test -f reverse_cache.json && git add reverse_cache.json || true
+
+          # Commit/push indien er changes zijn
+          git commit -m "Auto update map" || echo "No changes"
           git push
       
       - name: Debug funda HTML snippet
