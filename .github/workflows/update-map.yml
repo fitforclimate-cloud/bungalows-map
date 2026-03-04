@@ -25,6 +25,24 @@ jobs:
 
       - name: Run script
         run: python generate_map.py
+
+      - name: Debug outputs existence + changes
+        run: |
+          echo "== files =="
+          ls -la bungalows_map.html bungalows_snapshot.csv bungalows_new.csv || true
+
+          echo "== first line of html (quick sanity) =="
+          head -n 2 bungalows_map.html || true
+
+          echo "== git status (incl ignored) =="
+          git status --porcelain
+          git status --ignored --porcelain
+
+          echo "== is html tracked? =="
+          git ls-files -- bungalows_map.html || true
+
+          echo "== is html ignored? =="
+          git check-ignore -v bungalows_map.html || echo "NOT ignored"
       
       - name: List files after run
         run: ls -la
