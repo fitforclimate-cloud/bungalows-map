@@ -30,7 +30,9 @@ from branca.element import MacroElement, Template
 # ---------------- CONFIG ----------------
 
 SITES = [
-    "https://www.funda.nl/zoeken/koop?selected_area=[%22valkenburg-li,30km%22]&price=%22300000-900000%22&object_type=[%22house%22,%22apartment%22]&object_type_house=[%22bungalow%22]&object_type_apartment_orientation=[%22corridor_flat%22,%22service_flat%22,%22basement%22,%22sheltered%22]&object_type_apartment=[%22ground_floor%22,%22with_external_access%22,%22house_with_porch%22,%22penthouse%22,%22double_ground_floor%22]",
+    "https://www.funda.nl/zoeken/koop?selected_area=[%22valkenburg-li,30km%22]&price=%22300000-900000%22&object_type=[%22apartment%22,%22house%22]&object_type_house=[%22villa%22,%22town_house%22,%22former_farm%22,%22bungalow%22]&object_type_apartment_orientation=[%22corridor_flat%22,%22service_flat%22,%22basement%22,%22sheltered%22,%22piano_nobile%22]&object_type_apartment=[%22ground_floor%22,%22flat_with_porch%22,%22with_external_access%22,%22house_with_porch%22,%22double_ground_floor%22,%22penthouse%22,%22mezzanine%22,%22maisonnette%22]&bedrooms=%220-2%22&search_result=1",
+    "https://www.funda.nl/zoeken/koop?selected_area=[%22valkenburg-li,30km%22]&price=%22300000-900000%22&object_type=[%22apartment%22,%22house%22]&object_type_house=[%22villa%22,%22town_house%22,%22former_farm%22,%22bungalow%22]&object_type_apartment_orientation=[%22corridor_flat%22,%22service_flat%22,%22basement%22,%22sheltered%22,%22piano_nobile%22]&object_type_apartment=[%22ground_floor%22,%22flat_with_porch%22,%22with_external_access%22,%22house_with_porch%22,%22double_ground_floor%22,%22penthouse%22,%22mezzanine%22,%22maisonnette%22]&bedrooms=%220-2%22&search_result=2",
+    "https://www.funda.nl/zoeken/koop?selected_area=[%22valkenburg-li,30km%22]&price=%22300000-900000%22&object_type=[%22apartment%22,%22house%22]&object_type_house=[%22villa%22,%22town_house%22,%22former_farm%22,%22bungalow%22]&object_type_apartment_orientation=[%22corridor_flat%22,%22service_flat%22,%22basement%22,%22sheltered%22,%22piano_nobile%22]&object_type_apartment=[%22ground_floor%22,%22flat_with_porch%22,%22with_external_access%22,%22house_with_porch%22,%22double_ground_floor%22,%22penthouse%22,%22mezzanine%22,%22maisonnette%22]&bedrooms=%220-2%22&search_result=3",
     "https://www.immoweb.be/nl/zoeken/huis-en-appartement/te-koop?countries=BE&maxBedroomCount=3&maxPrice=900000&minBedroomCount=2&minPrice=300000&postalCodes=3620,3621,3630,3770,3793,3798&propertySubtypes=BUNGALOW,APARTMENT_BLOCK,FARMHOUSE,CHALET,GROUND_FLOOR,PENTHOUSE,LOFT,SERVICE_FLAT,PAVILION,OTHER_PROPERTY,MIXED_USE_BUILDING,EXCEPTIONAL_PROPERTY&buildingConditions=GOOD,TO_BE_DONE_UP,AS_NEW,JUST_RENOVATED&page=1&orderBy=relevance"
 ]
 
@@ -50,11 +52,11 @@ CENTER_NAME = "Valkenburg aan de Geul, Nederland"
 CENTER_FALLBACK_LATLON = (50.8650, 5.8320)
 RADIUS_KM = 40
 
-OUT_SNAPSHOT_CSV = "bungalows_snapshot.csv"
-OUT_NEW_CSV      = "bungalows_new.csv"
-OUT_MAP_HTML     = "bungalows_map.html"
-GEO_CACHE_JSON   = "geo_cache.json"
-REV_CACHE_JSON   = "reverse_cache.json"
+OUT_SNAPSHOT_CSV = r"bungalows_snapshot.csv"
+OUT_NEW_CSV = r"bungalows_new.csv"
+OUT_MAP_HTML = r"bungalows_map.html"
+GEO_CACHE_JSON = r"geo_cache.json"
+REV_CACHE_JSON = r"reverse_cache.json"
 
 COLUMNS = [
     "scraped_at", "source", "title", "price_text", "location_text", "since_text", "url",
@@ -108,7 +110,8 @@ def absolute_url(base: str, href: str) -> str:
 
 def fetch(url: str, referer: str | None = None) -> str:
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "User-Agent": USER_AGENT,
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Accept-Language": "nl-NL,nl;q=0.9,en;q=0.7",
         "Cache-Control": "no-cache",
         "Pragma": "no-cache",
@@ -144,7 +147,7 @@ def load_json_cache(path: str) -> dict:
     except FileNotFoundError:
         return {}
 
-def _json_cache(path: str, cache: dict) -> None:
+def save_json_cache(path: str, cache: dict) -> None:
     with open(path, "w", encoding="utf-8") as f:
         json.dump(cache, f, ensure_ascii=False, indent=2)
 
@@ -505,7 +508,7 @@ def passes_immoweb_server_filters(detail_html: str) -> bool:
         return False
 
     exclude_types = [
-        "kasteel", "landhuis", "bel-etage", "villa", "triplex", "kot",
+        "kot",
         "gemengd gebruik", "gemengde bestemming", "handels pand", "professioneel"
     ]
     if any(etype in low_txt for etype in exclude_types):
@@ -1112,21 +1115,8 @@ def compute_municipality_centroids(rows: list[Row]) -> list[dict]:
 
 def write_map(rows: list[Row]) -> None:
     rows = [r for r in rows if r.lat is not None and r.lon is not None]
-
     if not rows:
-        print("[WARN] Geen punten om te plotten. Schrijf lege kaart (met timestamp).")
-
-        m = folium.Map(
-            location=[CENTER_FALLBACK_LATLON[0], CENTER_FALLBACK_LATLON[1]],
-            zoom_start=9,
-            control_scale=True,
-            tiles="OpenStreetMap",
-        )
-
-        ts = datetime.utcnow().isoformat(timespec="seconds") + "Z"
-        m.get_root().html.add_child(folium.Element(f"<!-- updated: {ts} -->"))
-        m.save(OUT_MAP_HTML)
-        print(f"[INFO] Kaart geschreven: {OUT_MAP_HTML}")
+        print("[WARN] Geen punten om te plotten.")
         return
 
     avg_lat = sum(r.lat for r in rows) / len(rows)
@@ -1198,9 +1188,6 @@ def write_map(rows: list[Row]) -> None:
     # Legend
     m.get_root().html.add_child(folium.Element(make_legend_html()))
 
-
-    ts = datetime.utcnow().isoformat(timespec="seconds") + "Z"
-    m.get_root().html.add_child(folium.Element(f"<!-- updated: {ts} -->"))
     m.save(OUT_MAP_HTML)
     print(f"[INFO] Kaart geschreven: {OUT_MAP_HTML}")
 
@@ -1264,15 +1251,8 @@ def run() -> None:
     print(f"- Snapshot: {OUT_SNAPSHOT_CSV}")
     print(f"- New:      {OUT_NEW_CSV}")
 
-    if len(enriched_rows) == 0:
-        print("[WARN] 0 geocodeerbare resultaten binnen radius. Kaart wordt leeg weggeschreven.")
-    
     write_map(enriched_rows)
 
 
 if __name__ == "__main__":
     run()
-
-
-
-
