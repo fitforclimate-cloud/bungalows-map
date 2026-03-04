@@ -28,6 +28,13 @@ jobs:
 
       - name: Run script
         run: python generate_map.py
+      
+      - name: Check map timestamp marker
+        run: |
+          echo "== find updated marker =="
+          grep -n "updated:" -n bungalows_map.html || echo "NO updated marker found"
+          echo "== html sha256 =="
+          sha256sum bungalows_map.html
 
       - name: Write build timestamp
         run: |
