@@ -26,6 +26,11 @@ jobs:
       - name: Run script
         run: python generate_map.py
 
+      - name: Write build timestamp
+        run: |
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > last_build_utc.txt
+          git add last_build_utc.txt
+
       - name: Debug outputs existence + changes
         run: |
           echo "== files =="
