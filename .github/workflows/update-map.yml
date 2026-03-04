@@ -29,73 +29,47 @@ jobs:
       - name: Run script
         run: python generate_map.py
       
-      - name: Check map timestamp marker
-        run: |
-          echo "== find updated marker =="
-          grep -n "updated:" -n bungalows_map.html || echo "NO updated marker found"
-          echo "== html sha256 =="
-          sha256sum bungalows_map.html
-
       - name: Write build timestamp
         run: |
           date -u +"%Y-%m-%dT%H:%M:%SZ" > last_build_utc.txt
 
-      - name: Debug outputs existence + changes
+      - name: Prove map updated + git sees changes
         run: |
+          set -e
           echo "== files =="
-          ls -la bungalows_map.html bungalows_snapshot.csv bungalows_new.csv || true
+          ls -la bungalows_map.html bungalows_snapshot.csv bungalows_new.csv last_build_utc.txt
 
-          echo "== first line of html (quick sanity) =="
-          head -n 2 bungalows_map.html || true
+          echo "== updated marker present? =="
+          grep -n "updated:" bungalows_map.html
 
-          echo "== git status (incl ignored) =="
-          git status --porcelain
-          git status --ignored --porcelain
-
-          echo "== is html tracked? =="
-          git ls-files -- bungalows_map.html || true
-
-          echo "== is html ignored? =="
-          git check-ignore -v bungalows_map.html || echo "NOT ignored"
-      
-      - name: Prove whether HTML changed
-        run: |
-          echo "== git diff for html =="
-          git diff -- bungalows_map.html || true
-
-          echo "== sha256 of html =="
+          echo "== sha256 (working tree) =="
           sha256sum bungalows_map.html
 
-          echo "== last commit sha256 of html (from git) =="
-          git show HEAD:bungalows_map.html | sha256sum
-      - name: List files after run
-        run: ls -la
+          echo "== sha256 (HEAD) =="
+          git show HEAD:bungalows_map.html | sha256sum || echo "No bungalows_map.html in HEAD yet"
 
+          echo "== git status =="
+          git status --porcelain
+
+          echo "== staged diff (after add, in next step) will show files =="
+          
       - name: Commit outputs
         run: |
           set -e
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
-          # Add de files die zeker bestaan
+          # Add outputs
           git add bungalows_map.html bungalows_snapshot.csv bungalows_new.csv last_build_utc.txt
 
-          # Add cache files alleen als ze bestaan
+          # Add cache files only if present
           test -f geo_cache.json && git add geo_cache.json || true
           test -f reverse_cache.json && git add reverse_cache.json || true
 
-          # Commit/push indien er changes zijn
+          echo "== staged files =="
+          git diff --cached --name-only
+
           git commit -m "Auto update map" || echo "No changes"
           git push
       
-      - name: Debug funda HTML snippet
-        run: |
-          python - <<'PY'
-          import requests
-          url="https://www.funda.nl/zoeken/koop?selected_area=[%22regio-zuid-limburg,50km%22]&object_type=[%22house%22]&object_type_house=[%22bungalow%22]&publication_date=%2210%22&bedrooms=%222-%22"
-          r=requests.get(url, headers={"User-Agent":"Mozilla/5.0"}, timeout=30)
-          print("status:", r.status_code)
-          print("len:", len(r.text))
-          print("first500:", r.text[:500].replace("\\n"," "))
-          print("has_detail:", "/detail/koop/" in r.text)
-          PY
+
