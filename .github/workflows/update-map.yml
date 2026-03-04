@@ -44,6 +44,16 @@ jobs:
           echo "== is html ignored? =="
           git check-ignore -v bungalows_map.html || echo "NOT ignored"
       
+      - name: Prove whether HTML changed
+        run: |
+          echo "== git diff for html =="
+          git diff -- bungalows_map.html || true
+
+          echo "== sha256 of html =="
+          sha256sum bungalows_map.html
+
+          echo "== last commit sha256 of html (from git) =="
+          git show HEAD:bungalows_map.html | sha256sum
       - name: List files after run
         run: ls -la
 
