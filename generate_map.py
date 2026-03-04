@@ -145,7 +145,7 @@ def load_json_cache(path: str) -> dict:
     except FileNotFoundError:
         return {}
 
-def save_json_cache(path: str, cache: dict) -> None:
+def _json_cache(path: str, cache: dict) -> None:
     with open(path, "w", encoding="utf-8") as f:
         json.dump(cache, f, ensure_ascii=False, indent=2)
 
@@ -1186,6 +1186,8 @@ def write_map(rows: list[Row]) -> None:
     # Legend
     m.get_root().html.add_child(folium.Element(make_legend_html()))
 
+    timestamp = datetime.utcnow().isoformat()
+    m.get_root().html.add_child(folium.Element(f"<!-- updated {timestamp} -->"))
     m.save(OUT_MAP_HTML)
     print(f"[INFO] Kaart geschreven: {OUT_MAP_HTML}")
 
@@ -1254,4 +1256,5 @@ def run() -> None:
 
 if __name__ == "__main__":
     run()
+
 
