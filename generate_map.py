@@ -25,8 +25,7 @@ from geopy.distance import geodesic
 import folium
 from folium.plugins import MarkerCluster, Fullscreen, LocateControl, MousePosition
 from branca.element import MacroElement, Template
-from datetime import datetime
-import folium
+
 
 # ---------------- CONFIG ----------------
 
@@ -109,8 +108,7 @@ def absolute_url(base: str, href: str) -> str:
 
 def fetch(url: str, referer: str | None = None) -> str:
     headers = {
-        "User-Agent": USER_AGENT,
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
         "Accept-Language": "nl-NL,nl;q=0.9,en;q=0.7",
         "Cache-Control": "no-cache",
         "Pragma": "no-cache",
@@ -1114,8 +1112,21 @@ def compute_municipality_centroids(rows: list[Row]) -> list[dict]:
 
 def write_map(rows: list[Row]) -> None:
     rows = [r for r in rows if r.lat is not None and r.lon is not None]
+
     if not rows:
-        print("[WARN] Geen punten om te plotten.")
+        print("[WARN] Geen punten om te plotten. Schrijf lege kaart (met timestamp).")
+
+        m = folium.Map(
+            location=[CENTER_FALLBACK_LATLON[0], CENTER_FALLBACK_LATLON[1]],
+            zoom_start=9,
+            control_scale=True,
+            tiles="OpenStreetMap",
+        )
+
+        ts = datetime.utcnow().isoformat(timespec="seconds") + "Z"
+        m.get_root().html.add_child(folium.Element(f"<!-- updated: {ts} -->"))
+        m.save(OUT_MAP_HTML)
+        print(f"[INFO] Kaart geschreven: {OUT_MAP_HTML}")
         return
 
     avg_lat = sum(r.lat for r in rows) / len(rows)
@@ -1253,11 +1264,15 @@ def run() -> None:
     print(f"- Snapshot: {OUT_SNAPSHOT_CSV}")
     print(f"- New:      {OUT_NEW_CSV}")
 
+    if len(enriched_rows) == 0:
+        print("[WARN] 0 geocodeerbare resultaten binnen radius. Kaart wordt leeg weggeschreven.")
+    
     write_map(enriched_rows)
 
 
 if __name__ == "__main__":
     run()
+
 
 
 
