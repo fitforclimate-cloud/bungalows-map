@@ -25,7 +25,8 @@ from geopy.distance import geodesic
 import folium
 from folium.plugins import MarkerCluster, Fullscreen, LocateControl, MousePosition
 from branca.element import MacroElement, Template
-
+from datetime import datetime
+import folium
 
 # ---------------- CONFIG ----------------
 
@@ -1186,8 +1187,9 @@ def write_map(rows: list[Row]) -> None:
     # Legend
     m.get_root().html.add_child(folium.Element(make_legend_html()))
 
-    timestamp = datetime.utcnow().isoformat()
-    m.get_root().html.add_child(folium.Element(f"<!-- updated {timestamp} -->"))
+
+    ts = datetime.utcnow().isoformat(timespec="seconds") + "Z"
+    m.get_root().html.add_child(folium.Element(f"<!-- updated: {ts} -->"))
     m.save(OUT_MAP_HTML)
     print(f"[INFO] Kaart geschreven: {OUT_MAP_HTML}")
 
@@ -1256,5 +1258,6 @@ def run() -> None:
 
 if __name__ == "__main__":
     run()
+
 
 
