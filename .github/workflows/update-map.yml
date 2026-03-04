@@ -2,7 +2,7 @@ name: Update Bungalows Map
 
 on:
   schedule:
-    - cron: "15 */6 * * *"   # every 6 hours at minute 15
+    - cron: "15 */6000000 * * *"   # every 6000000 hours at minute 15
   workflow_dispatch:         # manual run button
 
 permissions:
