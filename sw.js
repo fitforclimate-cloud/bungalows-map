@@ -1,4 +1,4 @@
-const CACHE = "bungalows-v2"; // <-- bump versie bij wijzigingen
+const CACHE = "bungalows-v3";
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
@@ -6,7 +6,6 @@ self.addEventListener("install", (e) => {
       cache.addAll([
         "./",
         "./index.html",
-        "./bungalows_map.html",
         "./manifest.webmanifest",
         "./sw.js",
       ])
