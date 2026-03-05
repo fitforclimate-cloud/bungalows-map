@@ -25,7 +25,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_f4ec52dd73a3cb3056a5d6fe522c1925 {
+                #map_f0c81a53f21e8ecf2d733cafa534620a {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -37,8 +37,6 @@
         
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.4.2/Control.FullScreen.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.4.2/Control.FullScreen.min.css"/>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-locatecontrol/0.66.2/L.Control.Locate.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-locatecontrol/0.66.2/L.Control.Locate.min.css"/>
     <script src="https://cdn.jsdelivr.net/gh/ardhi/Leaflet.MousePosition/src/L.Control.MousePosition.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ardhi/Leaflet.MousePosition/src/L.Control.MousePosition.min.css"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/leaflet.markercluster.js"></script>
@@ -48,7 +46,6 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
         <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
         <style>
-          /* Make geocoder look nice and centered */
           .leaflet-control-geocoder {
             border-radius: 10px !important;
             overflow: hidden !important;
@@ -65,25 +62,115 @@
     
     <div style="
         position: fixed;
+        top: 12px;
+        left: 12px;
+        z-index: 9999;
+        background: rgba(255,255,255,0.92);
+        border: 1px solid #bbb;
+        border-radius: 12px;
+        padding: 10px 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+        max-width: calc(100vw - 24px);
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    ">
+      <div style="font-weight:900; font-size: 16px; line-height: 1.15;">
+        🏡 Op Bungalowjacht met pap en mam!™
+      </div>
+      <div style="margin-top:4px; font-size: 12px; color:#444;">
+        missie: droomhuis vinden • chaos: gecontroleerd
+      </div>
+    </div>
+    
+    
+    <style>
+      /* Popup typography */
+      .leaflet-popup-content { font-size: 14px; line-height: 1.25; }
+      .leaflet-popup-content b { font-size: 15px; }
+
+      /* Action buttons in popup (mobile friendly) */
+      .popup-actions { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+      .popup-btn {
+        display: inline-block;
+        padding: 9px 11px;
+        border-radius: 12px;
+        border: 1px solid #bbb;
+        background: rgba(255,255,255,0.95);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.10);
+        text-decoration: none;
+        font-weight: 800;
+        font-size: 14px;
+        color: #111;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+      .popup-btn:active { transform: scale(0.98); }
+
+      .popup-btn-primary { border-color: #1a73e8; }
+      .popup-btn-soft { border-color: #999; }
+
+      .popup-meta { color: #444; font-size: 13px; margin-top: 3px; }
+    </style>
+
+    <div style="
+        position: fixed;
         bottom: 22px;
         right: 12px;
         z-index: 9999;
         background: rgba(255,255,255,0.92);
         border: 1px solid #bbb;
-        border-radius: 8px;
+        border-radius: 10px;
         padding: 10px 12px;
         font-size: 12px;
         max-width: 290px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.12);
     ">
-      <div style="font-weight:700; margin-bottom:6px;">Tips</div>
+      <div style="font-weight:800; margin-bottom:6px;">Tips</div>
       <div>• Rechtsboven: kaartlagen (OSM / Satelliet).</div>
       <div>• Klik clusters om te “spiderfy-en”.</div>
       <div>• Zoeken: middenboven (type → enter).</div>
+      <div>• 📍 Mijn locatie: linksboven.</div>
     </div>
+
+    <!-- Helper JS used by popup buttons -->
+    <script>
+      window._openRouteSmart = function(lat, lon){
+        try{
+          var ua = navigator.userAgent || "";
+          var isApple = /iPad|iPhone|iPod/.test(ua) || (ua.includes("Macintosh") && "ontouchend" in document);
+          var url = isApple
+            ? ("https://maps.apple.com/?daddr=" + lat + "," + lon + "&dirflg=d")
+            : ("https://www.google.com/maps/dir/?api=1&destination=" + lat + "," + lon);
+          window.open(url, "_blank");
+        } catch(e){
+          window.open("https://www.google.com/maps/dir/?api=1&destination=" + lat + "," + lon, "_blank");
+        }
+      };
+
+      window._copyText = function(txt){
+        try{
+          if(navigator.clipboard && navigator.clipboard.writeText){
+            navigator.clipboard.writeText(txt);
+            alert("Link gekopieerd");
+            return;
+          }
+        } catch(e){}
+        try{
+          var ta = document.createElement("textarea");
+          ta.value = txt;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+          alert("Link gekopieerd");
+        } catch(e){
+          alert("Kopiëren lukt niet automatisch. Hou de link ingedrukt en kies Kopieer.");
+        }
+      };
+    </script>
     
     
-            <div class="folium-map" id="map_f4ec52dd73a3cb3056a5d6fe522c1925" ></div>
+            <div class="folium-map" id="map_f0c81a53f21e8ecf2d733cafa534620a" ></div>
         
     
         <div style="
@@ -151,7 +238,7 @@
             var lon = parseFloat(parts[1]);
             var zoom = parseInt(parts[2], 10);
             if(isNaN(lat) || isNaN(lon) || isNaN(zoom)) return;
-            map_f4ec52dd73a3cb3056a5d6fe522c1925.setView([lat, lon], zoom, {animate:true});
+            map_f0c81a53f21e8ecf2d733cafa534620a.setView([lat, lon], zoom, {animate:true});
           });
         })();
         </script>
@@ -160,8 +247,8 @@
 <script>
     
     
-            var map_f4ec52dd73a3cb3056a5d6fe522c1925 = L.map(
-                "map_f4ec52dd73a3cb3056a5d6fe522c1925",
+            var map_f0c81a53f21e8ecf2d733cafa534620a = L.map(
+                "map_f0c81a53f21e8ecf2d733cafa534620a",
                 {
                     center: [50.897830934615385, 5.78298004423077],
                     crs: L.CRS.EPSG3857,
@@ -170,73 +257,184 @@
                     preferCanvas: false,
                 }
             );
-            L.control.scale().addTo(map_f4ec52dd73a3cb3056a5d6fe522c1925);
+            L.control.scale().addTo(map_f0c81a53f21e8ecf2d733cafa534620a);
 
             
 
         
     
-            var tile_layer_6fe4ce0c9784649919a12197c5a74684 = L.tileLayer(
+            var tile_layer_58f0e6b03622f67ba32913d41f5052e1 = L.tileLayer(
                 "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                 {"attribution": "Data by \u0026copy; \u003ca target=\"_blank\" href=\"http://openstreetmap.org\"\u003eOpenStreetMap\u003c/a\u003e, under \u003ca target=\"_blank\" href=\"http://www.openstreetmap.org/copyright\"\u003eODbL\u003c/a\u003e.", "detectRetina": false, "maxNativeZoom": 18, "maxZoom": 18, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
-            ).addTo(map_f4ec52dd73a3cb3056a5d6fe522c1925);
+            ).addTo(map_f0c81a53f21e8ecf2d733cafa534620a);
         
     
-            var tile_layer_5d25b6be6990e587501d2084da8a6d61 = L.tileLayer(
+            var tile_layer_ca4d7d01037b8f454bd40b6885534611 = L.tileLayer(
                 "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
                 {"attribution": "Esri World Imagery", "detectRetina": false, "maxNativeZoom": 18, "maxZoom": 18, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
-            ).addTo(map_f4ec52dd73a3cb3056a5d6fe522c1925);
+            ).addTo(map_f0c81a53f21e8ecf2d733cafa534620a);
         
     
             L.control.fullscreen(
                 {"forceSeparateButton": false, "position": "topleft", "title": "Full Screen", "titleCancel": "Exit Full Screen"}
-            ).addTo(map_f4ec52dd73a3cb3056a5d6fe522c1925);
+            ).addTo(map_f0c81a53f21e8ecf2d733cafa534620a);
         
     
-            var locate_control_ac7b5de2f03372cbe120041e103ea3cd = L.control.locate(
-                {"position": "topleft"}
-            ).addTo(map_f4ec52dd73a3cb3056a5d6fe522c1925);
-            
-        
-    
-            var mouse_position_2b359b48edd4137ad8b95bb8f9d25b24 = new L.Control.MousePosition(
+            var mouse_position_b517bcd45fcb87eb9ad38820ebe321de = new L.Control.MousePosition(
                 {"emptyString": "Unavailable", "lngFirst": false, "numDigits": 5, "position": "bottomleft", "prefix": "", "separator": " | "}
             );
-            mouse_position_2b359b48edd4137ad8b95bb8f9d25b24.options["latFormatter"] =
+            mouse_position_b517bcd45fcb87eb9ad38820ebe321de.options["latFormatter"] =
                 undefined;
-            mouse_position_2b359b48edd4137ad8b95bb8f9d25b24.options["lngFormatter"] =
+            mouse_position_b517bcd45fcb87eb9ad38820ebe321de.options["lngFormatter"] =
                 undefined;
-            map_f4ec52dd73a3cb3056a5d6fe522c1925.addControl(mouse_position_2b359b48edd4137ad8b95bb8f9d25b24);
+            map_f0c81a53f21e8ecf2d733cafa534620a.addControl(mouse_position_b517bcd45fcb87eb9ad38820ebe321de);
         
     
-            var marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55 = L.markerClusterGroup(
+        (function(){
+          var map = map_f0c81a53f21e8ecf2d733cafa534620a;
+          if(!map || !L) return;
+
+          var pos = "topleft";
+
+          var MyLoc = L.Control.extend({
+            options: { position: pos },
+            onAdd: function () {
+              var container = L.DomUtil.create('div', 'leaflet-bar');
+              container.style.background = "rgba(255,255,255,0.95)";
+              container.style.border = "1px solid #bbb";
+              container.style.borderRadius = "12px";
+              container.style.boxShadow = "0 2px 10px rgba(0,0,0,0.12)";
+              container.style.overflow = "hidden";
+
+              var btn = L.DomUtil.create('a', '', container);
+              btn.href = "#";
+              btn.title = "Mijn locatie";
+              btn.innerHTML = "📍 Mijn locatie";
+              btn.style.display = "block";
+              btn.style.padding = "10px 12px";
+              btn.style.fontSize = "14px";
+              btn.style.fontWeight = "800";
+              btn.style.textDecoration = "none";
+              btn.style.color = "#111";
+              btn.style.userSelect = "none";
+              btn.style.touchAction = "manipulation";
+              btn.style.webkitTapHighlightColor = "transparent";
+
+              L.DomEvent.disableClickPropagation(container);
+              L.DomEvent.disableScrollPropagation(container);
+
+              L.DomEvent.on(btn, 'click', function(e){
+                L.DomEvent.preventDefault(e);
+                map.locate({
+                  setView: true,
+                  maxZoom: 15,
+                  enableHighAccuracy: true,
+                  timeout: 12000
+                });
+              });
+
+              return container;
+            }
+          });
+
+          map.addControl(new MyLoc());
+
+          var myMarker = null;
+          var myCircle = null;
+
+          function onLocationFound(e){
+            var latlng = e.latlng;
+            var acc = e.accuracy || 0;
+
+            if(myMarker) map.removeLayer(myMarker);
+            if(myCircle) map.removeLayer(myCircle);
+
+            myMarker = L.circleMarker(latlng, {
+              radius: 8,
+              weight: 2,
+              color: "#1a73e8",
+              fillColor: "#1a73e8",
+              fillOpacity: 0.9
+            }).addTo(map);
+
+            if(acc > 0){
+              myCircle = L.circle(latlng, {
+                radius: acc,
+                weight: 1,
+                color: "#1a73e8",
+                fillColor: "#1a73e8",
+                fillOpacity: 0.12
+              }).addTo(map);
+            }
+
+            myMarker.bindPopup("Jij bent hier (± " + Math.round(acc) + " m)").openPopup();
+          }
+
+          map.on("locationfound", onLocationFound);
+
+        })();
+        
+    
+        (function(){
+          var map = map_f0c81a53f21e8ecf2d733cafa534620a;
+          if(!map) return;
+
+          function showGeoHelp(e){
+            var code = (e && typeof e.code !== "undefined") ? e.code : null;
+            var msg = "Locatie kon niet worden bepaald.\n\n";
+
+            if(code === 1){
+              msg += "Toegang tot locatie is geweigerd (browser-permissie).\n\n";
+            } else if(code === 2){
+              msg += "Locatie is niet beschikbaar (GPS staat vaak uit, of geen signaal).\n\n";
+            } else if(code === 3){
+              msg += "Timeout: het bepalen van je locatie duurde te lang.\n\n";
+            } else {
+              msg += "Onbekende fout bij geolocatie.\n\n";
+            }
+
+            msg += "Controleer:\n";
+            msg += "• GPS/Locatie staat AAN op je telefoon\n";
+            msg += "• De browser mag je locatie gebruiken (Site-instellingen)\n";
+            msg += "• Open de kaart in webbrowser (niet via in-app browser)\n\n";
+            msg += "Tip iPhone: Instellingen → Privacy & beveiliging → Locatievoorzieningen → Safari websites\n";
+            msg += "Tip Android: Chrome → Instellingen → Site-instellingen → Locatie";
+
+            alert(msg);
+          }
+
+          map.on("locationerror", showGeoHelp);
+        })();
+        
+    
+            var marker_cluster_23915efd72ae1cb7cdafc28a2baa1633 = L.markerClusterGroup(
                 {"maxClusterRadius": 45, "showCoverageOnHover": false, "spiderfyDistanceMultiplier": 1.8, "spiderfyOnMaxZoom": true, "zoomToBoundsOnClick": true}
             );
-            map_f4ec52dd73a3cb3056a5d6fe522c1925.addLayer(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            map_f0c81a53f21e8ecf2d733cafa534620a.addLayer(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-            var marker_066b971770dd2dba0bb21ba8fd967f96 = L.marker(
+            var marker_0e22c2015a94246b30c35b2a34bb31f7 = L.marker(
                 [50.8916801, 6.0204403],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_5cd17e27a20700748f17e74d7e16bbf8 = L.popup({"maxWidth": 380});
+        var popup_3ebd4d3ec1a862e13e1afd51af900f14 = L.popup({"maxWidth": 420});
 
         
             
-                var html_d1f4197674294cc9138aa135823a3d6d = $(`<div id="html_d1f4197674294cc9138aa135823a3d6d" style="width: 100.0%; height: 100.0%;"><b>Blikvanger</b><br>€ 498.000 k.k.<br><i>Landgraaf</i> — 14.9 km<br>landgraaf<br><br><a href='https://www.funda.nl/detail/koop/landgraaf/huis-molenweg-12/43298521/' target='_blank'>link</a></div>`)[0];
-                popup_5cd17e27a20700748f17e74d7e16bbf8.setContent(html_d1f4197674294cc9138aa135823a3d6d);
+                var html_8d2a3e7775fc5ae6d1464cccdc344e67 = $(`<div id="html_8d2a3e7775fc5ae6d1464cccdc344e67" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Blikvanger</b></div>           <div class="popup-meta">€ 498.000 k.k.</div>           <div class="popup-meta"><i>Landgraaf</i> — 14.9 km</div>           <div class="popup-meta">landgraaf</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/landgraaf/huis-molenweg-12/43298521/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.8916801, 6.0204403); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.8916801,6.0204403" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/landgraaf/huis-molenweg-12/43298521/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_3ebd4d3ec1a862e13e1afd51af900f14.setContent(html_8d2a3e7775fc5ae6d1464cccdc344e67);
             
         
 
-        marker_066b971770dd2dba0bb21ba8fd967f96.bindPopup(popup_5cd17e27a20700748f17e74d7e16bbf8)
+        marker_0e22c2015a94246b30c35b2a34bb31f7.bindPopup(popup_3ebd4d3ec1a862e13e1afd51af900f14)
         ;
 
         
     
     
-            marker_066b971770dd2dba0bb21ba8fd967f96.bindTooltip(
+            marker_0e22c2015a94246b30c35b2a34bb31f7.bindTooltip(
                 `<div>
                      Landgraaf | € 498.000 k.k.
                  </div>`,
@@ -244,28 +442,28 @@
             );
         
     
-            var marker_a5257c484ca6536d5e5c453074804482 = L.marker(
+            var marker_1b93b11ffec78859fbaae012b4103e1a = L.marker(
                 [50.9042367, 5.7727296],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_a098c0c5abc02554ff9509cac62a4e5c = L.popup({"maxWidth": 380});
+        var popup_969b59bdaff2ce56750cd7d5232f434a = L.popup({"maxWidth": 420});
 
         
             
-                var html_28a721f825622bdcecde04c273822c5d = $(`<div id="html_28a721f825622bdcecde04c273822c5d" style="width: 100.0%; height: 100.0%;"><b>Blikvanger</b><br>€ 498.000 k.k.<br><i>Meerssen</i> — 5.6 km<br>ulestraten<br><br><a href='https://www.funda.nl/detail/koop/ulestraten/huis-beekerweg-27/43281377/' target='_blank'>link</a></div>`)[0];
-                popup_a098c0c5abc02554ff9509cac62a4e5c.setContent(html_28a721f825622bdcecde04c273822c5d);
+                var html_72ae2b058d10969932f9b8dc28fcaf1b = $(`<div id="html_72ae2b058d10969932f9b8dc28fcaf1b" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Blikvanger</b></div>           <div class="popup-meta">€ 498.000 k.k.</div>           <div class="popup-meta"><i>Meerssen</i> — 5.6 km</div>           <div class="popup-meta">ulestraten</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/ulestraten/huis-beekerweg-27/43281377/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.9042367, 5.7727296); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.9042367,5.7727296" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/ulestraten/huis-beekerweg-27/43281377/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_969b59bdaff2ce56750cd7d5232f434a.setContent(html_72ae2b058d10969932f9b8dc28fcaf1b);
             
         
 
-        marker_a5257c484ca6536d5e5c453074804482.bindPopup(popup_a098c0c5abc02554ff9509cac62a4e5c)
+        marker_1b93b11ffec78859fbaae012b4103e1a.bindPopup(popup_969b59bdaff2ce56750cd7d5232f434a)
         ;
 
         
     
     
-            marker_a5257c484ca6536d5e5c453074804482.bindTooltip(
+            marker_1b93b11ffec78859fbaae012b4103e1a.bindTooltip(
                 `<div>
                      Meerssen | € 498.000 k.k.
                  </div>`,
@@ -273,28 +471,28 @@
             );
         
     
-            var marker_ce7c598808fab3ba0b27103b6fdbeba7 = L.marker(
+            var marker_a90aa85892d4a80bed8048a202e299bf = L.marker(
                 [50.9426798, 5.7917416],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_f8bf680332af77d0969f7195365fb34f = L.popup({"maxWidth": 380});
+        var popup_95dc0b649fdc84e5e11b8c36a1c23aef = L.popup({"maxWidth": 420});
 
         
             
-                var html_d02361487792975f9c35fe0094cb2d8a = $(`<div id="html_d02361487792975f9c35fe0094cb2d8a" style="width: 100.0%; height: 100.0%;"><b>Blikvanger</b><br>€ 480.000 k.k.<br><i>Beek</i> — 9.2 km<br>beek li<br><br><a href='https://www.funda.nl/detail/koop/beek-li/huis-doctor-beckersstraat-3/89522965/' target='_blank'>link</a></div>`)[0];
-                popup_f8bf680332af77d0969f7195365fb34f.setContent(html_d02361487792975f9c35fe0094cb2d8a);
+                var html_b3451ace6a5084fd11e6e88a4daf905b = $(`<div id="html_b3451ace6a5084fd11e6e88a4daf905b" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Blikvanger</b></div>           <div class="popup-meta">€ 480.000 k.k.</div>           <div class="popup-meta"><i>Beek</i> — 9.2 km</div>           <div class="popup-meta">beek li</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/beek-li/huis-doctor-beckersstraat-3/89522965/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.9426798, 5.7917416); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.9426798,5.7917416" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/beek-li/huis-doctor-beckersstraat-3/89522965/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_95dc0b649fdc84e5e11b8c36a1c23aef.setContent(html_b3451ace6a5084fd11e6e88a4daf905b);
             
         
 
-        marker_ce7c598808fab3ba0b27103b6fdbeba7.bindPopup(popup_f8bf680332af77d0969f7195365fb34f)
+        marker_a90aa85892d4a80bed8048a202e299bf.bindPopup(popup_95dc0b649fdc84e5e11b8c36a1c23aef)
         ;
 
         
     
     
-            marker_ce7c598808fab3ba0b27103b6fdbeba7.bindTooltip(
+            marker_a90aa85892d4a80bed8048a202e299bf.bindTooltip(
                 `<div>
                      Beek | € 480.000 k.k.
                  </div>`,
@@ -302,28 +500,28 @@
             );
         
     
-            var marker_f3ef8bf56e461c98ed38de50d3aba547 = L.marker(
+            var marker_14b8a3c93abc045ba47e00223a702922 = L.marker(
                 [50.9683483, 5.9728254],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_9c3dceb499060d39b85612e61f176f96 = L.popup({"maxWidth": 380});
+        var popup_cd540d94d6efcd699a913a75292a662a = L.popup({"maxWidth": 420});
 
         
             
-                var html_3237d4d9ca57e9a58785a2f7aed1c4c4 = $(`<div id="html_3237d4d9ca57e9a58785a2f7aed1c4c4" style="width: 100.0%; height: 100.0%;"><b>Blikvanger</b><br>€ 449.500 k.k.<br><i>Beekdaelen</i> — 16.4 km<br>schinveld<br><br><a href='https://www.funda.nl/detail/koop/schinveld/huis-merkelbeekerstraat-38/43351920/' target='_blank'>link</a></div>`)[0];
-                popup_9c3dceb499060d39b85612e61f176f96.setContent(html_3237d4d9ca57e9a58785a2f7aed1c4c4);
+                var html_8630d78eaf68516a58a9ca5f226a6183 = $(`<div id="html_8630d78eaf68516a58a9ca5f226a6183" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Blikvanger</b></div>           <div class="popup-meta">€ 449.500 k.k.</div>           <div class="popup-meta"><i>Beekdaelen</i> — 16.4 km</div>           <div class="popup-meta">schinveld</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/schinveld/huis-merkelbeekerstraat-38/43351920/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.9683483, 5.9728254); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.9683483,5.9728254" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/schinveld/huis-merkelbeekerstraat-38/43351920/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_cd540d94d6efcd699a913a75292a662a.setContent(html_8630d78eaf68516a58a9ca5f226a6183);
             
         
 
-        marker_f3ef8bf56e461c98ed38de50d3aba547.bindPopup(popup_9c3dceb499060d39b85612e61f176f96)
+        marker_14b8a3c93abc045ba47e00223a702922.bindPopup(popup_cd540d94d6efcd699a913a75292a662a)
         ;
 
         
     
     
-            marker_f3ef8bf56e461c98ed38de50d3aba547.bindTooltip(
+            marker_14b8a3c93abc045ba47e00223a702922.bindTooltip(
                 `<div>
                      Beekdaelen | € 449.500 k.k.
                  </div>`,
@@ -331,28 +529,28 @@
             );
         
     
-            var marker_000f57ba2b0fbd6bbab36da5f35b50ce = L.marker(
+            var marker_c60ac250f98f5d69988f852381243f24 = L.marker(
                 [51.0027948, 5.8471819],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_37923c2f9d569774646dcb57c1f20714 = L.popup({"maxWidth": 380});
+        var popup_42fb608732eed3fcc0944072f723f1e1 = L.popup({"maxWidth": 420});
 
         
             
-                var html_746bccb5bd1e252b1fd4220144b26bb3 = $(`<div id="html_746bccb5bd1e252b1fd4220144b26bb3" style="width: 100.0%; height: 100.0%;"><b>Handelsstraat 32 6135 KL Sittard</b><br>€ 489.000 k.k.<br><i>Sittard-Geleen</i> — 16.0 km<br>6135 KL<br><br><a href='https://www.funda.nl/detail/koop/sittard/huis-handelsstraat-32/43226484/' target='_blank'>link</a></div>`)[0];
-                popup_37923c2f9d569774646dcb57c1f20714.setContent(html_746bccb5bd1e252b1fd4220144b26bb3);
+                var html_58cd2f42d5efcec9585fe10129fac209 = $(`<div id="html_58cd2f42d5efcec9585fe10129fac209" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Handelsstraat 32 6135 KL Sittard</b></div>           <div class="popup-meta">€ 489.000 k.k.</div>           <div class="popup-meta"><i>Sittard-Geleen</i> — 16.0 km</div>           <div class="popup-meta">6135 KL</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/sittard/huis-handelsstraat-32/43226484/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(51.0027948, 5.8471819); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=51.0027948,5.8471819" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/sittard/huis-handelsstraat-32/43226484/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_42fb608732eed3fcc0944072f723f1e1.setContent(html_58cd2f42d5efcec9585fe10129fac209);
             
         
 
-        marker_000f57ba2b0fbd6bbab36da5f35b50ce.bindPopup(popup_37923c2f9d569774646dcb57c1f20714)
+        marker_c60ac250f98f5d69988f852381243f24.bindPopup(popup_42fb608732eed3fcc0944072f723f1e1)
         ;
 
         
     
     
-            marker_000f57ba2b0fbd6bbab36da5f35b50ce.bindTooltip(
+            marker_c60ac250f98f5d69988f852381243f24.bindTooltip(
                 `<div>
                      Sittard-Geleen | € 489.000 k.k.
                  </div>`,
@@ -360,28 +558,28 @@
             );
         
     
-            var marker_ebdc43fa945f6d318e74f03049c2e260 = L.marker(
+            var marker_238d6c55fb42f9515613876447b82b62 = L.marker(
                 [51.0478517, 5.8251433],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_446de92bd8fd4cd8483c31aa80315cce = L.popup({"maxWidth": 380});
+        var popup_99a864c8554c89edee1240ecad53123e = L.popup({"maxWidth": 420});
 
         
             
-                var html_56803b69f5cd6fe483c65ee5563fc98b = $(`<div id="html_56803b69f5cd6fe483c65ee5563fc98b" style="width: 100.0%; height: 100.0%;"><b>Blikvanger</b><br>€ 450.000 k.k.<br><i>Sittard-Geleen</i> — 20.8 km<br>holtum<br><br><a href='https://www.funda.nl/detail/koop/holtum/huis-kloosterstraat-25/43115684/' target='_blank'>link</a></div>`)[0];
-                popup_446de92bd8fd4cd8483c31aa80315cce.setContent(html_56803b69f5cd6fe483c65ee5563fc98b);
+                var html_1eb939c3059d66a572f5420208427a25 = $(`<div id="html_1eb939c3059d66a572f5420208427a25" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Blikvanger</b></div>           <div class="popup-meta">€ 450.000 k.k.</div>           <div class="popup-meta"><i>Sittard-Geleen</i> — 20.8 km</div>           <div class="popup-meta">holtum</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/holtum/huis-kloosterstraat-25/43115684/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(51.0478517, 5.8251433); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=51.0478517,5.8251433" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/holtum/huis-kloosterstraat-25/43115684/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_99a864c8554c89edee1240ecad53123e.setContent(html_1eb939c3059d66a572f5420208427a25);
             
         
 
-        marker_ebdc43fa945f6d318e74f03049c2e260.bindPopup(popup_446de92bd8fd4cd8483c31aa80315cce)
+        marker_238d6c55fb42f9515613876447b82b62.bindPopup(popup_99a864c8554c89edee1240ecad53123e)
         ;
 
         
     
     
-            marker_ebdc43fa945f6d318e74f03049c2e260.bindTooltip(
+            marker_238d6c55fb42f9515613876447b82b62.bindTooltip(
                 `<div>
                      Sittard-Geleen | € 450.000 k.k.
                  </div>`,
@@ -389,28 +587,28 @@
             );
         
     
-            var marker_ad8a2b2ea1e03442fee8768285cd05f1 = L.marker(
+            var marker_45080fcf46cce4dde5114598338ab22f = L.marker(
                 [51.0886172, 5.8801519],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_0a9249b74a9d3b6b03a0c95b090a772c = L.popup({"maxWidth": 380});
+        var popup_13fdb01137d38cd34e3d8130506c2f52 = L.popup({"maxWidth": 420});
 
         
             
-                var html_27d13946fe62e63b08fa644b429df932 = $(`<div id="html_27d13946fe62e63b08fa644b429df932" style="width: 100.0%; height: 100.0%;"><b>Eickerveld 39 6102 VE Echt</b><br>€ 485.000 v.o.n.<br><i>Echt-Susteren</i> — 25.8 km<br>6102 VE<br><br><a href='https://www.funda.nl/detail/koop/echt/huis-eickerveld-39/43222616/' target='_blank'>link</a></div>`)[0];
-                popup_0a9249b74a9d3b6b03a0c95b090a772c.setContent(html_27d13946fe62e63b08fa644b429df932);
+                var html_892de3870dc0afdaa1079ec7c07feff6 = $(`<div id="html_892de3870dc0afdaa1079ec7c07feff6" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Eickerveld 39 6102 VE Echt</b></div>           <div class="popup-meta">€ 485.000 v.o.n.</div>           <div class="popup-meta"><i>Echt-Susteren</i> — 25.8 km</div>           <div class="popup-meta">6102 VE</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/echt/huis-eickerveld-39/43222616/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(51.0886172, 5.8801519); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=51.0886172,5.8801519" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/echt/huis-eickerveld-39/43222616/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_13fdb01137d38cd34e3d8130506c2f52.setContent(html_892de3870dc0afdaa1079ec7c07feff6);
             
         
 
-        marker_ad8a2b2ea1e03442fee8768285cd05f1.bindPopup(popup_0a9249b74a9d3b6b03a0c95b090a772c)
+        marker_45080fcf46cce4dde5114598338ab22f.bindPopup(popup_13fdb01137d38cd34e3d8130506c2f52)
         ;
 
         
     
     
-            marker_ad8a2b2ea1e03442fee8768285cd05f1.bindTooltip(
+            marker_45080fcf46cce4dde5114598338ab22f.bindTooltip(
                 `<div>
                      Echt-Susteren | € 485.000 v.o.n.
                  </div>`,
@@ -418,28 +616,28 @@
             );
         
     
-            var marker_f448fa4f7edd6e2d38f411bc0f58637c = L.marker(
+            var marker_70da016b55e3b38a538ed95c146061dc = L.marker(
                 [51.0887664, 5.8803589],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_4a01d1c0e9e884c76b503dca67393b56 = L.popup({"maxWidth": 380});
+        var popup_cfe229b911d1a20e0e99d4124a3a9833 = L.popup({"maxWidth": 420});
 
         
             
-                var html_eeedd6bad102b4191853e91257656d40 = $(`<div id="html_eeedd6bad102b4191853e91257656d40" style="width: 100.0%; height: 100.0%;"><b>Eickerveld 37 6102 VE Echt</b><br>€ 485.000 v.o.n.<br><i>Echt-Susteren</i> — 25.8 km<br>6102 VE<br><br><a href='https://www.funda.nl/detail/koop/echt/huis-eickerveld-37/43222615/' target='_blank'>link</a></div>`)[0];
-                popup_4a01d1c0e9e884c76b503dca67393b56.setContent(html_eeedd6bad102b4191853e91257656d40);
+                var html_b0636833d4d273eb9082909ed3f2fca0 = $(`<div id="html_b0636833d4d273eb9082909ed3f2fca0" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Eickerveld 37 6102 VE Echt</b></div>           <div class="popup-meta">€ 485.000 v.o.n.</div>           <div class="popup-meta"><i>Echt-Susteren</i> — 25.8 km</div>           <div class="popup-meta">6102 VE</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/echt/huis-eickerveld-37/43222615/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(51.0887664, 5.8803589); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=51.0887664,5.8803589" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/echt/huis-eickerveld-37/43222615/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_cfe229b911d1a20e0e99d4124a3a9833.setContent(html_b0636833d4d273eb9082909ed3f2fca0);
             
         
 
-        marker_f448fa4f7edd6e2d38f411bc0f58637c.bindPopup(popup_4a01d1c0e9e884c76b503dca67393b56)
+        marker_70da016b55e3b38a538ed95c146061dc.bindPopup(popup_cfe229b911d1a20e0e99d4124a3a9833)
         ;
 
         
     
     
-            marker_f448fa4f7edd6e2d38f411bc0f58637c.bindTooltip(
+            marker_70da016b55e3b38a538ed95c146061dc.bindTooltip(
                 `<div>
                      Echt-Susteren | € 485.000 v.o.n.
                  </div>`,
@@ -447,28 +645,28 @@
             );
         
     
-            var marker_ae23e4998d88123981e8856175cca842 = L.marker(
+            var marker_39da2a766f1e41b4ba04d78c1ed54206 = L.marker(
                 [51.0886172, 5.8801519],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_f625cdaf4d705baf88373a4adb57c2b7 = L.popup({"maxWidth": 380});
+        var popup_d0f989b5dac2499ed08609b748c52dbe = L.popup({"maxWidth": 420});
 
         
             
-                var html_3037b9921c81524830866e8c71d12507 = $(`<div id="html_3037b9921c81524830866e8c71d12507" style="width: 100.0%; height: 100.0%;"><b>Eickerveld 33 6102 VE Echt</b><br>€ 485.000 v.o.n.<br><i>Echt-Susteren</i> — 25.8 km<br>6102 VE<br><br><a href='https://www.funda.nl/detail/koop/echt/huis-eickerveld-33/43222614/' target='_blank'>link</a></div>`)[0];
-                popup_f625cdaf4d705baf88373a4adb57c2b7.setContent(html_3037b9921c81524830866e8c71d12507);
+                var html_c2ed01c4e02f70b90691f4e33f36168f = $(`<div id="html_c2ed01c4e02f70b90691f4e33f36168f" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Eickerveld 33 6102 VE Echt</b></div>           <div class="popup-meta">€ 485.000 v.o.n.</div>           <div class="popup-meta"><i>Echt-Susteren</i> — 25.8 km</div>           <div class="popup-meta">6102 VE</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/echt/huis-eickerveld-33/43222614/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(51.0886172, 5.8801519); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=51.0886172,5.8801519" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/echt/huis-eickerveld-33/43222614/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_d0f989b5dac2499ed08609b748c52dbe.setContent(html_c2ed01c4e02f70b90691f4e33f36168f);
             
         
 
-        marker_ae23e4998d88123981e8856175cca842.bindPopup(popup_f625cdaf4d705baf88373a4adb57c2b7)
+        marker_39da2a766f1e41b4ba04d78c1ed54206.bindPopup(popup_d0f989b5dac2499ed08609b748c52dbe)
         ;
 
         
     
     
-            marker_ae23e4998d88123981e8856175cca842.bindTooltip(
+            marker_39da2a766f1e41b4ba04d78c1ed54206.bindTooltip(
                 `<div>
                      Echt-Susteren | € 485.000 v.o.n.
                  </div>`,
@@ -476,28 +674,28 @@
             );
         
     
-            var marker_0549166b97395253771da6a50cde826d = L.marker(
+            var marker_0710bc93dd6dec2df4073dc6b5868069 = L.marker(
                 [51.0887664, 5.8803589],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_263d1fedbe831ab51cf3ee6e6633ae98 = L.popup({"maxWidth": 380});
+        var popup_dbefc5ce025225fe7bfb1d509276625d = L.popup({"maxWidth": 420});
 
         
             
-                var html_200fad5ba66829d54528c8ba9ad94e32 = $(`<div id="html_200fad5ba66829d54528c8ba9ad94e32" style="width: 100.0%; height: 100.0%;"><b>Eickerveld 35 6102 VE Echt</b><br>€ 485.000 v.o.n.<br><i>Echt-Susteren</i> — 25.8 km<br>6102 VE<br><br><a href='https://www.funda.nl/detail/koop/echt/huis-eickerveld-35/43222613/' target='_blank'>link</a></div>`)[0];
-                popup_263d1fedbe831ab51cf3ee6e6633ae98.setContent(html_200fad5ba66829d54528c8ba9ad94e32);
+                var html_d7332ecaa886e78e5f2be4a2fddbc0a3 = $(`<div id="html_d7332ecaa886e78e5f2be4a2fddbc0a3" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Eickerveld 35 6102 VE Echt</b></div>           <div class="popup-meta">€ 485.000 v.o.n.</div>           <div class="popup-meta"><i>Echt-Susteren</i> — 25.8 km</div>           <div class="popup-meta">6102 VE</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/echt/huis-eickerveld-35/43222613/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(51.0887664, 5.8803589); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=51.0887664,5.8803589" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/echt/huis-eickerveld-35/43222613/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_dbefc5ce025225fe7bfb1d509276625d.setContent(html_d7332ecaa886e78e5f2be4a2fddbc0a3);
             
         
 
-        marker_0549166b97395253771da6a50cde826d.bindPopup(popup_263d1fedbe831ab51cf3ee6e6633ae98)
+        marker_0710bc93dd6dec2df4073dc6b5868069.bindPopup(popup_dbefc5ce025225fe7bfb1d509276625d)
         ;
 
         
     
     
-            marker_0549166b97395253771da6a50cde826d.bindTooltip(
+            marker_0710bc93dd6dec2df4073dc6b5868069.bindTooltip(
                 `<div>
                      Echt-Susteren | € 485.000 v.o.n.
                  </div>`,
@@ -505,28 +703,28 @@
             );
         
     
-            var marker_0a467c94ae85865bad2278c4868fd2bf = L.marker(
+            var marker_6d1d23f8614738b15141e291883d99e2 = L.marker(
                 [50.7818608, 5.8995443],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_55d0ba0d7caaa2dcbc215377fa7ed819 = L.popup({"maxWidth": 380});
+        var popup_e9f15bdbd2ced807d792186bc794e8dc = L.popup({"maxWidth": 420});
 
         
             
-                var html_ffe5155b70883cbcbffb85499badd506 = $(`<div id="html_ffe5155b70883cbcbffb85499badd506" style="width: 100.0%; height: 100.0%;"><b>Blikvanger</b><br>€ 635.000 k.k.<br><i>Gulpen-Wittem</i> — 10.7 km<br>mechelen<br><br><a href='https://www.funda.nl/detail/koop/mechelen/huis-schweibergerweg-78/89476933/' target='_blank'>link</a></div>`)[0];
-                popup_55d0ba0d7caaa2dcbc215377fa7ed819.setContent(html_ffe5155b70883cbcbffb85499badd506);
+                var html_a99a306b9268381d4ffb939b80e94e36 = $(`<div id="html_a99a306b9268381d4ffb939b80e94e36" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Blikvanger</b></div>           <div class="popup-meta">€ 635.000 k.k.</div>           <div class="popup-meta"><i>Gulpen-Wittem</i> — 10.7 km</div>           <div class="popup-meta">mechelen</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/mechelen/huis-schweibergerweg-78/89476933/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.7818608, 5.8995443); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.7818608,5.8995443" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/mechelen/huis-schweibergerweg-78/89476933/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_e9f15bdbd2ced807d792186bc794e8dc.setContent(html_a99a306b9268381d4ffb939b80e94e36);
             
         
 
-        marker_0a467c94ae85865bad2278c4868fd2bf.bindPopup(popup_55d0ba0d7caaa2dcbc215377fa7ed819)
+        marker_6d1d23f8614738b15141e291883d99e2.bindPopup(popup_e9f15bdbd2ced807d792186bc794e8dc)
         ;
 
         
     
     
-            marker_0a467c94ae85865bad2278c4868fd2bf.bindTooltip(
+            marker_6d1d23f8614738b15141e291883d99e2.bindTooltip(
                 `<div>
                      Gulpen-Wittem | € 635.000 k.k.
                  </div>`,
@@ -534,28 +732,28 @@
             );
         
     
-            var marker_dcbf8339ad2fd35de0d20de75b6f90c6 = L.marker(
+            var marker_09345f0ae70d9fbbfda831b3726d26bf = L.marker(
                 [50.993066, 5.8590493],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_04d107ea9027f7e3b0c44fd8183742f0 = L.popup({"maxWidth": 380});
+        var popup_e55a07059c9505106f3d60a7d0b6a5cf = L.popup({"maxWidth": 420});
 
         
             
-                var html_ea58b54bc3f39459b64c36edcc16eda4 = $(`<div id="html_ea58b54bc3f39459b64c36edcc16eda4" style="width: 100.0%; height: 100.0%;"><b>Steegstraat 47 6133 AK Sittard</b><br>€ 449.000 k.k.<br><i>Sittard-Geleen</i> — 15.0 km<br>6133 AK<br><br><a href='https://www.funda.nl/detail/koop/sittard/huis-steegstraat-47/89654435/' target='_blank'>link</a></div>`)[0];
-                popup_04d107ea9027f7e3b0c44fd8183742f0.setContent(html_ea58b54bc3f39459b64c36edcc16eda4);
+                var html_637d316604bc27ff1caf7470ad8eba1c = $(`<div id="html_637d316604bc27ff1caf7470ad8eba1c" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Steegstraat 47 6133 AK Sittard</b></div>           <div class="popup-meta">€ 449.000 k.k.</div>           <div class="popup-meta"><i>Sittard-Geleen</i> — 15.0 km</div>           <div class="popup-meta">6133 AK</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/sittard/huis-steegstraat-47/89654435/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.993066, 5.8590493); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.993066,5.8590493" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/sittard/huis-steegstraat-47/89654435/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_e55a07059c9505106f3d60a7d0b6a5cf.setContent(html_637d316604bc27ff1caf7470ad8eba1c);
             
         
 
-        marker_dcbf8339ad2fd35de0d20de75b6f90c6.bindPopup(popup_04d107ea9027f7e3b0c44fd8183742f0)
+        marker_09345f0ae70d9fbbfda831b3726d26bf.bindPopup(popup_e55a07059c9505106f3d60a7d0b6a5cf)
         ;
 
         
     
     
-            marker_dcbf8339ad2fd35de0d20de75b6f90c6.bindTooltip(
+            marker_09345f0ae70d9fbbfda831b3726d26bf.bindTooltip(
                 `<div>
                      Sittard-Geleen | € 449.000 k.k.
                  </div>`,
@@ -563,28 +761,28 @@
             );
         
     
-            var marker_eedacbb7882293e6f9edad8f57bfcb78 = L.marker(
+            var marker_1d70f1cccee14e7c22dd6d606499e8c5 = L.marker(
                 [50.8710331, 5.965863],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_cba3c8305ee44b693ac49c2bc92deec5 = L.popup({"maxWidth": 380});
+        var popup_07606ddb922d69c6f9a3b236b4999433 = L.popup({"maxWidth": 420});
 
         
             
-                var html_06a2c1d7edc03292d9ba074c0849235f = $(`<div id="html_06a2c1d7edc03292d9ba074c0849235f" style="width: 100.0%; height: 100.0%;"><b>De Kommert 29 6419 GA Heerlen</b><br>€ 449.000 k.k.<br><i>Heerlen</i> — 10.8 km<br>6419 GA<br><br><a href='https://www.funda.nl/detail/koop/heerlen/huis-de-kommert-29/43285613/' target='_blank'>link</a></div>`)[0];
-                popup_cba3c8305ee44b693ac49c2bc92deec5.setContent(html_06a2c1d7edc03292d9ba074c0849235f);
+                var html_5975e799c23ba42933ec0dd0d185e258 = $(`<div id="html_5975e799c23ba42933ec0dd0d185e258" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>De Kommert 29 6419 GA Heerlen</b></div>           <div class="popup-meta">€ 449.000 k.k.</div>           <div class="popup-meta"><i>Heerlen</i> — 10.8 km</div>           <div class="popup-meta">6419 GA</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/heerlen/huis-de-kommert-29/43285613/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.8710331, 5.965863); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.8710331,5.965863" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/heerlen/huis-de-kommert-29/43285613/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_07606ddb922d69c6f9a3b236b4999433.setContent(html_5975e799c23ba42933ec0dd0d185e258);
             
         
 
-        marker_eedacbb7882293e6f9edad8f57bfcb78.bindPopup(popup_cba3c8305ee44b693ac49c2bc92deec5)
+        marker_1d70f1cccee14e7c22dd6d606499e8c5.bindPopup(popup_07606ddb922d69c6f9a3b236b4999433)
         ;
 
         
     
     
-            marker_eedacbb7882293e6f9edad8f57bfcb78.bindTooltip(
+            marker_1d70f1cccee14e7c22dd6d606499e8c5.bindTooltip(
                 `<div>
                      Heerlen | € 449.000 k.k.
                  </div>`,
@@ -592,28 +790,28 @@
             );
         
     
-            var marker_9379102d775d0ed18f5a5bc8fffe60ea = L.marker(
+            var marker_026bf04d4d455c9027f298f78f54205f = L.marker(
                 [50.8325819, 5.977525],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_1db71158a5956143f69d78ed3c165a2b = L.popup({"maxWidth": 380});
+        var popup_85c65c6d8a8ac72acffd93ad0d043652 = L.popup({"maxWidth": 420});
 
         
             
-                var html_667cc175ffb6adacdddb9d04b8cd0761 = $(`<div id="html_667cc175ffb6adacdddb9d04b8cd0761" style="width: 100.0%; height: 100.0%;"><b>Irmstraat 61 6369 VM Simpelveld</b><br>€ 649.000 k.k.<br><i>Simpelveld</i> — 12.0 km<br>6369 VM<br><br><a href='https://www.funda.nl/detail/koop/simpelveld/huis-irmstraat-61/43251043/' target='_blank'>link</a></div>`)[0];
-                popup_1db71158a5956143f69d78ed3c165a2b.setContent(html_667cc175ffb6adacdddb9d04b8cd0761);
+                var html_416b0f1e4029dfbfe0ce9b63fb5b2bf8 = $(`<div id="html_416b0f1e4029dfbfe0ce9b63fb5b2bf8" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Irmstraat 61 6369 VM Simpelveld</b></div>           <div class="popup-meta">€ 649.000 k.k.</div>           <div class="popup-meta"><i>Simpelveld</i> — 12.0 km</div>           <div class="popup-meta">6369 VM</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/simpelveld/huis-irmstraat-61/43251043/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.8325819, 5.977525); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.8325819,5.977525" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/simpelveld/huis-irmstraat-61/43251043/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_85c65c6d8a8ac72acffd93ad0d043652.setContent(html_416b0f1e4029dfbfe0ce9b63fb5b2bf8);
             
         
 
-        marker_9379102d775d0ed18f5a5bc8fffe60ea.bindPopup(popup_1db71158a5956143f69d78ed3c165a2b)
+        marker_026bf04d4d455c9027f298f78f54205f.bindPopup(popup_85c65c6d8a8ac72acffd93ad0d043652)
         ;
 
         
     
     
-            marker_9379102d775d0ed18f5a5bc8fffe60ea.bindTooltip(
+            marker_026bf04d4d455c9027f298f78f54205f.bindTooltip(
                 `<div>
                      Simpelveld | € 649.000 k.k.
                  </div>`,
@@ -621,28 +819,28 @@
             );
         
     
-            var marker_0954c673d53cb1e6501c5d45cba65439 = L.marker(
+            var marker_27c60ee0d4361f4ee03b2f3a2acae253 = L.marker(
                 [50.9704494, 5.8411792],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_1eea695045fa27dd0cb7d61bfe09aecb = L.popup({"maxWidth": 380});
+        var popup_533fb8e47e85101595a27c3f2d0e8220 = L.popup({"maxWidth": 420});
 
         
             
-                var html_819006aced393c8c804f4de72e4edd75 = $(`<div id="html_819006aced393c8c804f4de72e4edd75" style="width: 100.0%; height: 100.0%;"><b>Pieterstraat 12 6166 AR Geleen</b><br>€ 450.000 k.k.<br><i>Sittard-Geleen</i> — 12.3 km<br>6166 AR<br><br><a href='https://www.funda.nl/detail/koop/geleen/huis-pieterstraat-12/89697823/' target='_blank'>link</a></div>`)[0];
-                popup_1eea695045fa27dd0cb7d61bfe09aecb.setContent(html_819006aced393c8c804f4de72e4edd75);
+                var html_f717ce95f1e14386ac07fe63fd2ef8cf = $(`<div id="html_f717ce95f1e14386ac07fe63fd2ef8cf" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Pieterstraat 12 6166 AR Geleen</b></div>           <div class="popup-meta">€ 450.000 k.k.</div>           <div class="popup-meta"><i>Sittard-Geleen</i> — 12.3 km</div>           <div class="popup-meta">6166 AR</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/geleen/huis-pieterstraat-12/89697823/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.9704494, 5.8411792); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.9704494,5.8411792" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/geleen/huis-pieterstraat-12/89697823/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_533fb8e47e85101595a27c3f2d0e8220.setContent(html_f717ce95f1e14386ac07fe63fd2ef8cf);
             
         
 
-        marker_0954c673d53cb1e6501c5d45cba65439.bindPopup(popup_1eea695045fa27dd0cb7d61bfe09aecb)
+        marker_27c60ee0d4361f4ee03b2f3a2acae253.bindPopup(popup_533fb8e47e85101595a27c3f2d0e8220)
         ;
 
         
     
     
-            marker_0954c673d53cb1e6501c5d45cba65439.bindTooltip(
+            marker_27c60ee0d4361f4ee03b2f3a2acae253.bindTooltip(
                 `<div>
                      Sittard-Geleen | € 450.000 k.k.
                  </div>`,
@@ -650,28 +848,28 @@
             );
         
     
-            var marker_2b3cc2ef95852d951e8417f361beec72 = L.marker(
+            var marker_1edd3f7f701cb6e0f1911d5ce4e5bbc2 = L.marker(
                 [50.9197065, 6.0390717],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_9910edcadecc14009ea8cb3f2d64b689 = L.popup({"maxWidth": 380});
+        var popup_a6dfe61245a157f43920514dbe184bc8 = L.popup({"maxWidth": 420});
 
         
             
-                var html_0a9971872486a353fbcff1760e99dd65 = $(`<div id="html_0a9971872486a353fbcff1760e99dd65" style="width: 100.0%; height: 100.0%;"><b>Veeweg 82 6374 AR Landgraaf</b><br>€ 545.000 k.k.<br><i>Landgraaf</i> — 17.2 km<br>6374 AR<br><br><a href='https://www.funda.nl/detail/koop/landgraaf/huis-veeweg-82/43240534/' target='_blank'>link</a></div>`)[0];
-                popup_9910edcadecc14009ea8cb3f2d64b689.setContent(html_0a9971872486a353fbcff1760e99dd65);
+                var html_55e415c63baeda11b37524173c7d0721 = $(`<div id="html_55e415c63baeda11b37524173c7d0721" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Veeweg 82 6374 AR Landgraaf</b></div>           <div class="popup-meta">€ 545.000 k.k.</div>           <div class="popup-meta"><i>Landgraaf</i> — 17.2 km</div>           <div class="popup-meta">6374 AR</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/landgraaf/huis-veeweg-82/43240534/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.9197065, 6.0390717); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.9197065,6.0390717" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/landgraaf/huis-veeweg-82/43240534/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_a6dfe61245a157f43920514dbe184bc8.setContent(html_55e415c63baeda11b37524173c7d0721);
             
         
 
-        marker_2b3cc2ef95852d951e8417f361beec72.bindPopup(popup_9910edcadecc14009ea8cb3f2d64b689)
+        marker_1edd3f7f701cb6e0f1911d5ce4e5bbc2.bindPopup(popup_a6dfe61245a157f43920514dbe184bc8)
         ;
 
         
     
     
-            marker_2b3cc2ef95852d951e8417f361beec72.bindTooltip(
+            marker_1edd3f7f701cb6e0f1911d5ce4e5bbc2.bindTooltip(
                 `<div>
                      Landgraaf | € 545.000 k.k.
                  </div>`,
@@ -679,28 +877,28 @@
             );
         
     
-            var marker_3ad60b23463037a0a6ec7e59c9398591 = L.marker(
+            var marker_147210a2336f346ddf4ee68689137ab6 = L.marker(
                 [50.8630841, 5.6929836],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_7260594405d896e4ac0fea5f7ba81107 = L.popup({"maxWidth": 380});
+        var popup_bf2e0b3fe89ce665085f574244e0b0fb = L.popup({"maxWidth": 420});
 
         
             
-                var html_557a9c3a4465147cb5c097e7962a55df = $(`<div id="html_557a9c3a4465147cb5c097e7962a55df" style="width: 100.0%; height: 100.0%;"><b>Ganzenstraat 6 6219 AZ Maastricht</b><br>€ 345.000 k.k.<br><i>Maastricht</i> — 8.5 km<br>6219 AZ<br><br><a href='https://www.funda.nl/detail/koop/maastricht/huis-ganzenstraat-6/89661312/' target='_blank'>link</a></div>`)[0];
-                popup_7260594405d896e4ac0fea5f7ba81107.setContent(html_557a9c3a4465147cb5c097e7962a55df);
+                var html_4d66619339686efbe90367ce3d9854a4 = $(`<div id="html_4d66619339686efbe90367ce3d9854a4" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Ganzenstraat 6 6219 AZ Maastricht</b></div>           <div class="popup-meta">€ 345.000 k.k.</div>           <div class="popup-meta"><i>Maastricht</i> — 8.5 km</div>           <div class="popup-meta">6219 AZ</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/maastricht/huis-ganzenstraat-6/89661312/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.8630841, 5.6929836); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.8630841,5.6929836" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/maastricht/huis-ganzenstraat-6/89661312/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_bf2e0b3fe89ce665085f574244e0b0fb.setContent(html_4d66619339686efbe90367ce3d9854a4);
             
         
 
-        marker_3ad60b23463037a0a6ec7e59c9398591.bindPopup(popup_7260594405d896e4ac0fea5f7ba81107)
+        marker_147210a2336f346ddf4ee68689137ab6.bindPopup(popup_bf2e0b3fe89ce665085f574244e0b0fb)
         ;
 
         
     
     
-            marker_3ad60b23463037a0a6ec7e59c9398591.bindTooltip(
+            marker_147210a2336f346ddf4ee68689137ab6.bindTooltip(
                 `<div>
                      Maastricht | € 345.000 k.k.
                  </div>`,
@@ -708,28 +906,28 @@
             );
         
     
-            var marker_b4574da9a8f8db2e75e579b08a6ea9fc = L.marker(
+            var marker_f7b6cd8b56197a51c839abf29901084a = L.marker(
                 [50.8380654, 5.7236945],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_127eb0ccabf5d10d161e0bc8dece8788 = L.popup({"maxWidth": 380});
+        var popup_f38d7d8edb6deaf6dce0540bbe0bae85 = L.popup({"maxWidth": 420});
 
         
             
-                var html_ce0d3dacf6c5070aba41623d1a2121b6 = $(`<div id="html_ce0d3dacf6c5070aba41623d1a2121b6" style="width: 100.0%; height: 100.0%;"><b>Op de Was 5 6227 SG Maastricht</b><br>€ 475.000 k.k.<br><i>Maastricht</i> — 6.8 km<br>6227 SG<br><br><a href='https://www.funda.nl/detail/koop/maastricht/huis-op-de-was-5/43271660/' target='_blank'>link</a></div>`)[0];
-                popup_127eb0ccabf5d10d161e0bc8dece8788.setContent(html_ce0d3dacf6c5070aba41623d1a2121b6);
+                var html_1e59e3b96fdf6cb453c4db20e37520d9 = $(`<div id="html_1e59e3b96fdf6cb453c4db20e37520d9" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Op de Was 5 6227 SG Maastricht</b></div>           <div class="popup-meta">€ 475.000 k.k.</div>           <div class="popup-meta"><i>Maastricht</i> — 6.8 km</div>           <div class="popup-meta">6227 SG</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/maastricht/huis-op-de-was-5/43271660/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.8380654, 5.7236945); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.8380654,5.7236945" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/maastricht/huis-op-de-was-5/43271660/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_f38d7d8edb6deaf6dce0540bbe0bae85.setContent(html_1e59e3b96fdf6cb453c4db20e37520d9);
             
         
 
-        marker_b4574da9a8f8db2e75e579b08a6ea9fc.bindPopup(popup_127eb0ccabf5d10d161e0bc8dece8788)
+        marker_f7b6cd8b56197a51c839abf29901084a.bindPopup(popup_f38d7d8edb6deaf6dce0540bbe0bae85)
         ;
 
         
     
     
-            marker_b4574da9a8f8db2e75e579b08a6ea9fc.bindTooltip(
+            marker_f7b6cd8b56197a51c839abf29901084a.bindTooltip(
                 `<div>
                      Maastricht | € 475.000 k.k.
                  </div>`,
@@ -737,28 +935,28 @@
             );
         
     
-            var marker_d4a13039a4da98683df10db4ab6f0c62 = L.marker(
+            var marker_40dc38997adaa93e63d5e55218483bbe = L.marker(
                 [50.8127599, 5.7989553],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_a44c2a3fe30d8e8b951891e9f9dffb15 = L.popup({"maxWidth": 380});
+        var popup_67e7e991439cb095b86a5c3707ef2b00 = L.popup({"maxWidth": 420});
 
         
             
-                var html_286df02692bff6c94bd505a0d8e8a845 = $(`<div id="html_286df02692bff6c94bd505a0d8e8a845" style="width: 100.0%; height: 100.0%;"><b>Honthem 11 6269 NP Margraten</b><br>€ 425.000 k.k.<br><i>Eijsden-Margraten</i> — 5.5 km<br>6269 NP<br><br><a href='https://www.funda.nl/detail/koop/margraten/huis-honthem-11/89587093/' target='_blank'>link</a></div>`)[0];
-                popup_a44c2a3fe30d8e8b951891e9f9dffb15.setContent(html_286df02692bff6c94bd505a0d8e8a845);
+                var html_d68f44e34f5ed7d00d434af13a74396f = $(`<div id="html_d68f44e34f5ed7d00d434af13a74396f" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Honthem 11 6269 NP Margraten</b></div>           <div class="popup-meta">€ 425.000 k.k.</div>           <div class="popup-meta"><i>Eijsden-Margraten</i> — 5.5 km</div>           <div class="popup-meta">6269 NP</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/margraten/huis-honthem-11/89587093/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.8127599, 5.7989553); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.8127599,5.7989553" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/margraten/huis-honthem-11/89587093/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_67e7e991439cb095b86a5c3707ef2b00.setContent(html_d68f44e34f5ed7d00d434af13a74396f);
             
         
 
-        marker_d4a13039a4da98683df10db4ab6f0c62.bindPopup(popup_a44c2a3fe30d8e8b951891e9f9dffb15)
+        marker_40dc38997adaa93e63d5e55218483bbe.bindPopup(popup_67e7e991439cb095b86a5c3707ef2b00)
         ;
 
         
     
     
-            marker_d4a13039a4da98683df10db4ab6f0c62.bindTooltip(
+            marker_40dc38997adaa93e63d5e55218483bbe.bindTooltip(
                 `<div>
                      Eijsden-Margraten | € 425.000 k.k.
                  </div>`,
@@ -766,28 +964,28 @@
             );
         
     
-            var marker_710bcec6d203a3e62e71ba1947de6688 = L.marker(
+            var marker_737cc5481fc03846acb3f9c716be9e47 = L.marker(
                 [50.9704426, 5.9361646],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_ebcec6cd76ec8cccacd62e80cefba963 = L.popup({"maxWidth": 380});
+        var popup_13a52502ec03021297c1a45e8dcfd168 = L.popup({"maxWidth": 420});
 
         
             
-                var html_c7ea19e4fc5c387c769d012eef63dcca = $(`<div id="html_c7ea19e4fc5c387c769d012eef63dcca" style="width: 100.0%; height: 100.0%;"><b>Blikvanger Verkocht onder voorbehoud</b><br>€ 495.000 k.k.<br><i>Beekdaelen</i> — 14.9 km<br>bingelrade<br><br><a href='https://www.funda.nl/detail/koop/bingelrade/huis-dorpsstraat-113/43037310/' target='_blank'>link</a></div>`)[0];
-                popup_ebcec6cd76ec8cccacd62e80cefba963.setContent(html_c7ea19e4fc5c387c769d012eef63dcca);
+                var html_c2fcb91c10294a93c08c22decabc625a = $(`<div id="html_c2fcb91c10294a93c08c22decabc625a" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Blikvanger Verkocht onder voorbehoud</b></div>           <div class="popup-meta">€ 495.000 k.k.</div>           <div class="popup-meta"><i>Beekdaelen</i> — 14.9 km</div>           <div class="popup-meta">bingelrade</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/bingelrade/huis-dorpsstraat-113/43037310/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.9704426, 5.9361646); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.9704426,5.9361646" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/bingelrade/huis-dorpsstraat-113/43037310/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_13a52502ec03021297c1a45e8dcfd168.setContent(html_c2fcb91c10294a93c08c22decabc625a);
             
         
 
-        marker_710bcec6d203a3e62e71ba1947de6688.bindPopup(popup_ebcec6cd76ec8cccacd62e80cefba963)
+        marker_737cc5481fc03846acb3f9c716be9e47.bindPopup(popup_13a52502ec03021297c1a45e8dcfd168)
         ;
 
         
     
     
-            marker_710bcec6d203a3e62e71ba1947de6688.bindTooltip(
+            marker_737cc5481fc03846acb3f9c716be9e47.bindTooltip(
                 `<div>
                      Beekdaelen | € 495.000 k.k.
                  </div>`,
@@ -795,28 +993,28 @@
             );
         
     
-            var marker_6bac7902fbfb2a4df31eada13a844eee = L.marker(
+            var marker_8f66ca77f4d90299436b5009c9735e2a = L.marker(
                 [50.9787201, 5.8676881],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_82afc5df5a33cdc5cec6b8581469c7c6 = L.popup({"maxWidth": 380});
+        var popup_0359c4176b65320ccd578f9b523830f7 = L.popup({"maxWidth": 420});
 
         
             
-                var html_85389eb2014290e62c93d31ad6588b17 = $(`<div id="html_85389eb2014290e62c93d31ad6588b17" style="width: 100.0%; height: 100.0%;"><b>Blikvanger Verkocht onder voorbehoud</b><br>€ 449.000 k.k.<br><i>Sittard-Geleen</i> — 13.6 km<br>munstergeleen<br><br><a href='https://www.funda.nl/detail/koop/munstergeleen/huis-margrietlaan-41/43211405/' target='_blank'>link</a></div>`)[0];
-                popup_82afc5df5a33cdc5cec6b8581469c7c6.setContent(html_85389eb2014290e62c93d31ad6588b17);
+                var html_fd5503c85e7ea27680e26da8f93f5952 = $(`<div id="html_fd5503c85e7ea27680e26da8f93f5952" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Blikvanger Verkocht onder voorbehoud</b></div>           <div class="popup-meta">€ 449.000 k.k.</div>           <div class="popup-meta"><i>Sittard-Geleen</i> — 13.6 km</div>           <div class="popup-meta">munstergeleen</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/munstergeleen/huis-margrietlaan-41/43211405/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.9787201, 5.8676881); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.9787201,5.8676881" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/munstergeleen/huis-margrietlaan-41/43211405/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_0359c4176b65320ccd578f9b523830f7.setContent(html_fd5503c85e7ea27680e26da8f93f5952);
             
         
 
-        marker_6bac7902fbfb2a4df31eada13a844eee.bindPopup(popup_82afc5df5a33cdc5cec6b8581469c7c6)
+        marker_8f66ca77f4d90299436b5009c9735e2a.bindPopup(popup_0359c4176b65320ccd578f9b523830f7)
         ;
 
         
     
     
-            marker_6bac7902fbfb2a4df31eada13a844eee.bindTooltip(
+            marker_8f66ca77f4d90299436b5009c9735e2a.bindTooltip(
                 `<div>
                      Sittard-Geleen | € 449.000 k.k.
                  </div>`,
@@ -824,28 +1022,28 @@
             );
         
     
-            var marker_db21ed98ffff8e3831e17e89ee5dfe6f = L.marker(
+            var marker_bef9dfec76eebc86a5bfbd5b13138aed = L.marker(
                 [50.8800466, 6.073462],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_33afc65ae0a79fc4a24dc2d1144f1177 = L.popup({"maxWidth": 380});
+        var popup_d6f3261d98f65c9df33789dc6de6f07d = L.popup({"maxWidth": 420});
 
         
             
-                var html_c30ace50a172102b0cd64ddb0cce001b = $(`<div id="html_c30ace50a172102b0cd64ddb0cce001b" style="width: 100.0%; height: 100.0%;"><b>Pieter de Hooghstraat 27 6464 BW Kerkrade</b><br>€ 449.000 k.k.<br><i>Kerkrade</i> — 18.4 km<br>6464 BW<br><br><a href='https://www.funda.nl/detail/koop/kerkrade/huis-pieter-de-hooghstraat-27/89658156/' target='_blank'>link</a></div>`)[0];
-                popup_33afc65ae0a79fc4a24dc2d1144f1177.setContent(html_c30ace50a172102b0cd64ddb0cce001b);
+                var html_deb8c18fd424e049fa4617535387ff58 = $(`<div id="html_deb8c18fd424e049fa4617535387ff58" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Pieter de Hooghstraat 27 6464 BW Kerkrade</b></div>           <div class="popup-meta">€ 449.000 k.k.</div>           <div class="popup-meta"><i>Kerkrade</i> — 18.4 km</div>           <div class="popup-meta">6464 BW</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/kerkrade/huis-pieter-de-hooghstraat-27/89658156/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.8800466, 6.073462); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.8800466,6.073462" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/kerkrade/huis-pieter-de-hooghstraat-27/89658156/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_d6f3261d98f65c9df33789dc6de6f07d.setContent(html_deb8c18fd424e049fa4617535387ff58);
             
         
 
-        marker_db21ed98ffff8e3831e17e89ee5dfe6f.bindPopup(popup_33afc65ae0a79fc4a24dc2d1144f1177)
+        marker_bef9dfec76eebc86a5bfbd5b13138aed.bindPopup(popup_d6f3261d98f65c9df33789dc6de6f07d)
         ;
 
         
     
     
-            marker_db21ed98ffff8e3831e17e89ee5dfe6f.bindTooltip(
+            marker_bef9dfec76eebc86a5bfbd5b13138aed.bindTooltip(
                 `<div>
                      Kerkrade | € 449.000 k.k.
                  </div>`,
@@ -853,28 +1051,28 @@
             );
         
     
-            var marker_c86655e9559f07ce21f4e1c4ddeca554 = L.marker(
+            var marker_2e52face888bd8bcef9fef36d630a036 = L.marker(
                 [50.8536722, 5.9525796],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_826cc01b50219cede6ea9d1da7f7d3c4 = L.popup({"maxWidth": 380});
+        var popup_6fa0e98fac5289266d471d1ca07facb6 = L.popup({"maxWidth": 420});
 
         
             
-                var html_41c767c3f18b97d6bf934a75083a05b1 = $(`<div id="html_41c767c3f18b97d6bf934a75083a05b1" style="width: 100.0%; height: 100.0%;"><b>Breedenweg 2 6367 JN Voerendaal</b><br>€ 695.000 k.k.<br><i>Voerendaal</i> — 9.8 km<br>6367 JN<br><br><a href='https://www.funda.nl/detail/koop/voerendaal/huis-breedenweg-2/43140022/' target='_blank'>link</a></div>`)[0];
-                popup_826cc01b50219cede6ea9d1da7f7d3c4.setContent(html_41c767c3f18b97d6bf934a75083a05b1);
+                var html_2cef8fb338881e18e3f55e4aa5f2940c = $(`<div id="html_2cef8fb338881e18e3f55e4aa5f2940c" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Breedenweg 2 6367 JN Voerendaal</b></div>           <div class="popup-meta">€ 695.000 k.k.</div>           <div class="popup-meta"><i>Voerendaal</i> — 9.8 km</div>           <div class="popup-meta">6367 JN</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/voerendaal/huis-breedenweg-2/43140022/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.8536722, 5.9525796); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.8536722,5.9525796" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/voerendaal/huis-breedenweg-2/43140022/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_6fa0e98fac5289266d471d1ca07facb6.setContent(html_2cef8fb338881e18e3f55e4aa5f2940c);
             
         
 
-        marker_c86655e9559f07ce21f4e1c4ddeca554.bindPopup(popup_826cc01b50219cede6ea9d1da7f7d3c4)
+        marker_2e52face888bd8bcef9fef36d630a036.bindPopup(popup_6fa0e98fac5289266d471d1ca07facb6)
         ;
 
         
     
     
-            marker_c86655e9559f07ce21f4e1c4ddeca554.bindTooltip(
+            marker_2e52face888bd8bcef9fef36d630a036.bindTooltip(
                 `<div>
                      Voerendaal | € 695.000 k.k.
                  </div>`,
@@ -882,28 +1080,28 @@
             );
         
     
-            var marker_59b2e6ae2b7f8e30e21cddcdefa7761b = L.marker(
+            var marker_31b121bfd24840f63dc371df64ecdce1 = L.marker(
                 [50.8332012, 5.705732],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_7370086bb37c5e512ef18c1d51e12259 = L.popup({"maxWidth": 380});
+        var popup_41513c3d400af3cbc8b51a65af209538 = L.popup({"maxWidth": 420});
 
         
             
-                var html_56a4bab41ca7e8c68fe6e968a8a4fb24 = $(`<div id="html_56a4bab41ca7e8c68fe6e968a8a4fb24" style="width: 100.0%; height: 100.0%;"><b>Praaglaan 69 6229 HL Maastricht</b><br>€ 495.000 k.k.<br><i>Maastricht</i> — 8.2 km<br>6229 HL<br><br><a href='https://www.funda.nl/detail/koop/maastricht/huis-praaglaan-69/89689459/' target='_blank'>link</a></div>`)[0];
-                popup_7370086bb37c5e512ef18c1d51e12259.setContent(html_56a4bab41ca7e8c68fe6e968a8a4fb24);
+                var html_8ab55dfea68237b47dc8bec53c30e301 = $(`<div id="html_8ab55dfea68237b47dc8bec53c30e301" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Praaglaan 69 6229 HL Maastricht</b></div>           <div class="popup-meta">€ 495.000 k.k.</div>           <div class="popup-meta"><i>Maastricht</i> — 8.2 km</div>           <div class="popup-meta">6229 HL</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/maastricht/huis-praaglaan-69/89689459/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.8332012, 5.705732); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.8332012,5.705732" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/maastricht/huis-praaglaan-69/89689459/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_41513c3d400af3cbc8b51a65af209538.setContent(html_8ab55dfea68237b47dc8bec53c30e301);
             
         
 
-        marker_59b2e6ae2b7f8e30e21cddcdefa7761b.bindPopup(popup_7370086bb37c5e512ef18c1d51e12259)
+        marker_31b121bfd24840f63dc371df64ecdce1.bindPopup(popup_41513c3d400af3cbc8b51a65af209538)
         ;
 
         
     
     
-            marker_59b2e6ae2b7f8e30e21cddcdefa7761b.bindTooltip(
+            marker_31b121bfd24840f63dc371df64ecdce1.bindTooltip(
                 `<div>
                      Maastricht | € 495.000 k.k.
                  </div>`,
@@ -911,28 +1109,28 @@
             );
         
     
-            var marker_6722f0bee79751e62c40faaf5eeec020 = L.marker(
+            var marker_e9a13365e7966b19994814e3b686e3d4 = L.marker(
                 [50.9709965, 5.9116842],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_42a3ac69e1188813c08205cd3e39b84a = L.popup({"maxWidth": 380});
+        var popup_2c39b91e83460a68f8bf243502708ba9 = L.popup({"maxWidth": 420});
 
         
             
-                var html_b65757731720ca770f705f9be46fb121 = $(`<div id="html_b65757731720ca770f705f9be46fb121" style="width: 100.0%; height: 100.0%;"><b>Blikvanger Verkocht onder voorbehoud</b><br>€ 495.000 k.k.<br><i>Beekdaelen</i> — 14.0 km<br>doenrade<br><br><a href='https://www.funda.nl/detail/koop/doenrade/huis-kerkstraat-108/43281612/' target='_blank'>link</a></div>`)[0];
-                popup_42a3ac69e1188813c08205cd3e39b84a.setContent(html_b65757731720ca770f705f9be46fb121);
+                var html_580c4c77634b8aeafe0ae7799e39933e = $(`<div id="html_580c4c77634b8aeafe0ae7799e39933e" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Blikvanger Verkocht onder voorbehoud</b></div>           <div class="popup-meta">€ 495.000 k.k.</div>           <div class="popup-meta"><i>Beekdaelen</i> — 14.0 km</div>           <div class="popup-meta">doenrade</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/doenrade/huis-kerkstraat-108/43281612/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.9709965, 5.9116842); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.9709965,5.9116842" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/doenrade/huis-kerkstraat-108/43281612/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_2c39b91e83460a68f8bf243502708ba9.setContent(html_580c4c77634b8aeafe0ae7799e39933e);
             
         
 
-        marker_6722f0bee79751e62c40faaf5eeec020.bindPopup(popup_42a3ac69e1188813c08205cd3e39b84a)
+        marker_e9a13365e7966b19994814e3b686e3d4.bindPopup(popup_2c39b91e83460a68f8bf243502708ba9)
         ;
 
         
     
     
-            marker_6722f0bee79751e62c40faaf5eeec020.bindTooltip(
+            marker_e9a13365e7966b19994814e3b686e3d4.bindTooltip(
                 `<div>
                      Beekdaelen | € 495.000 k.k.
                  </div>`,
@@ -940,28 +1138,28 @@
             );
         
     
-            var marker_e715836260e3128038291456bf0c834b = L.marker(
+            var marker_24cfd79e0abaaff2be2a5e5c4d77f839 = L.marker(
                 [50.9254403, 5.9426004],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_1c79c58696ad3757af17d345ba0cb8d8 = L.popup({"maxWidth": 380});
+        var popup_89099c0c6dad159537263a67c1952e48 = L.popup({"maxWidth": 420});
 
         
             
-                var html_50866e20abab799fdf4b15d9d26181be = $(`<div id="html_50866e20abab799fdf4b15d9d26181be" style="width: 100.0%; height: 100.0%;"><b>Koestraat 12 6431 XM Hoensbroek</b><br>€ 379.000 k.k.<br><i>Heerlen</i> — 11.6 km<br>6431 XM<br><br><a href='https://www.funda.nl/detail/koop/hoensbroek/huis-koestraat-12/89642344/' target='_blank'>link</a></div>`)[0];
-                popup_1c79c58696ad3757af17d345ba0cb8d8.setContent(html_50866e20abab799fdf4b15d9d26181be);
+                var html_09dd98abd6c4511c39f00a1ffa6abe6f = $(`<div id="html_09dd98abd6c4511c39f00a1ffa6abe6f" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Koestraat 12 6431 XM Hoensbroek</b></div>           <div class="popup-meta">€ 379.000 k.k.</div>           <div class="popup-meta"><i>Heerlen</i> — 11.6 km</div>           <div class="popup-meta">6431 XM</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/hoensbroek/huis-koestraat-12/89642344/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.9254403, 5.9426004); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.9254403,5.9426004" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/hoensbroek/huis-koestraat-12/89642344/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_89099c0c6dad159537263a67c1952e48.setContent(html_09dd98abd6c4511c39f00a1ffa6abe6f);
             
         
 
-        marker_e715836260e3128038291456bf0c834b.bindPopup(popup_1c79c58696ad3757af17d345ba0cb8d8)
+        marker_24cfd79e0abaaff2be2a5e5c4d77f839.bindPopup(popup_89099c0c6dad159537263a67c1952e48)
         ;
 
         
     
     
-            marker_e715836260e3128038291456bf0c834b.bindTooltip(
+            marker_24cfd79e0abaaff2be2a5e5c4d77f839.bindTooltip(
                 `<div>
                      Heerlen | € 379.000 k.k.
                  </div>`,
@@ -969,28 +1167,28 @@
             );
         
     
-            var marker_cc4c897fea99c54366b2eb2183e26e8a = L.marker(
+            var marker_234d86487df97e0785bc295a24f6d8be = L.marker(
                 [50.8060523, 5.7641678],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_8c1b2414bbede9641e58466cd56e43a2 = L.popup({"maxWidth": 380});
+        var popup_09baa3295cd414d85562b77ed0af0205 = L.popup({"maxWidth": 420});
 
         
             
-                var html_6988eb40e2a53ea074f0bed696114173 = $(`<div id="html_6988eb40e2a53ea074f0bed696114173" style="width: 100.0%; height: 100.0%;"><b>Dorpsstraat 46 6252 ND Eckelrade</b><br>€ 585.000 k.k.<br><i>Eijsden-Margraten</i> — 7.0 km<br>6252 ND<br><br><a href='https://www.funda.nl/detail/koop/eckelrade/huis-dorpsstraat-46/43188939/' target='_blank'>link</a></div>`)[0];
-                popup_8c1b2414bbede9641e58466cd56e43a2.setContent(html_6988eb40e2a53ea074f0bed696114173);
+                var html_ecac20661ec7ad267e977db5f314edec = $(`<div id="html_ecac20661ec7ad267e977db5f314edec" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Dorpsstraat 46 6252 ND Eckelrade</b></div>           <div class="popup-meta">€ 585.000 k.k.</div>           <div class="popup-meta"><i>Eijsden-Margraten</i> — 7.0 km</div>           <div class="popup-meta">6252 ND</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/eckelrade/huis-dorpsstraat-46/43188939/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.8060523, 5.7641678); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.8060523,5.7641678" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/eckelrade/huis-dorpsstraat-46/43188939/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_09baa3295cd414d85562b77ed0af0205.setContent(html_ecac20661ec7ad267e977db5f314edec);
             
         
 
-        marker_cc4c897fea99c54366b2eb2183e26e8a.bindPopup(popup_8c1b2414bbede9641e58466cd56e43a2)
+        marker_234d86487df97e0785bc295a24f6d8be.bindPopup(popup_09baa3295cd414d85562b77ed0af0205)
         ;
 
         
     
     
-            marker_cc4c897fea99c54366b2eb2183e26e8a.bindTooltip(
+            marker_234d86487df97e0785bc295a24f6d8be.bindTooltip(
                 `<div>
                      Eijsden-Margraten | € 585.000 k.k.
                  </div>`,
@@ -998,28 +1196,28 @@
             );
         
     
-            var marker_b6806bb33f9a22d2b256e1daea59ecbd = L.marker(
+            var marker_dbe67185ad4dcb9b42db72f1efdf6c84 = L.marker(
                 [50.9230101, 5.7597812],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_fd76b0eaa8ddf1747a265664ba7d1eec = L.popup({"maxWidth": 380});
+        var popup_f3621c4e0423da1d9768b0fffe62e45e = L.popup({"maxWidth": 420});
 
         
             
-                var html_41f595929db7a5b74f05360dfb3d4aa6 = $(`<div id="html_41f595929db7a5b74f05360dfb3d4aa6" style="width: 100.0%; height: 100.0%;"><b>Mevrouw van der Meijstraat 26 6243 AP Geulle</b><br>€ 489.000 k.k.<br><i>Meerssen</i> — 7.9 km<br>6243 AP<br><br><a href='https://www.funda.nl/detail/koop/geulle/huis-mevrouw-van-der-meijstraat-26/43136275/' target='_blank'>link</a></div>`)[0];
-                popup_fd76b0eaa8ddf1747a265664ba7d1eec.setContent(html_41f595929db7a5b74f05360dfb3d4aa6);
+                var html_88abc97e6d0703c1a713ea9cffd82ddc = $(`<div id="html_88abc97e6d0703c1a713ea9cffd82ddc" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Mevrouw van der Meijstraat 26 6243 AP Geulle</b></div>           <div class="popup-meta">€ 489.000 k.k.</div>           <div class="popup-meta"><i>Meerssen</i> — 7.9 km</div>           <div class="popup-meta">6243 AP</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/geulle/huis-mevrouw-van-der-meijstraat-26/43136275/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.9230101, 5.7597812); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.9230101,5.7597812" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/geulle/huis-mevrouw-van-der-meijstraat-26/43136275/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_f3621c4e0423da1d9768b0fffe62e45e.setContent(html_88abc97e6d0703c1a713ea9cffd82ddc);
             
         
 
-        marker_b6806bb33f9a22d2b256e1daea59ecbd.bindPopup(popup_fd76b0eaa8ddf1747a265664ba7d1eec)
+        marker_dbe67185ad4dcb9b42db72f1efdf6c84.bindPopup(popup_f3621c4e0423da1d9768b0fffe62e45e)
         ;
 
         
     
     
-            marker_b6806bb33f9a22d2b256e1daea59ecbd.bindTooltip(
+            marker_dbe67185ad4dcb9b42db72f1efdf6c84.bindTooltip(
                 `<div>
                      Meerssen | € 489.000 k.k.
                  </div>`,
@@ -1027,28 +1225,28 @@
             );
         
     
-            var marker_ed0b2bb732b2018c29418a161b5e9f89 = L.marker(
+            var marker_93835c4abb2c7474e3ed1314300550fe = L.marker(
                 [50.9994817, 5.8300544],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_69fa5648695091d24836587bdf7a06e9 = L.popup({"maxWidth": 380});
+        var popup_5a7f42ab81b91d6eddc723a9818cd306 = L.popup({"maxWidth": 420});
 
         
             
-                var html_8952ec80ff76bcf1acc18e399f32bc5c = $(`<div id="html_8952ec80ff76bcf1acc18e399f32bc5c" style="width: 100.0%; height: 100.0%;"><b>Herreveld 1 6142 BX Einighausen</b><br>€ 525.000 k.k.<br><i>Sittard-Geleen</i> — 15.5 km<br>6142 BX<br><br><a href='https://www.funda.nl/detail/koop/einighausen/huis-herreveld-1/89654447/' target='_blank'>link</a></div>`)[0];
-                popup_69fa5648695091d24836587bdf7a06e9.setContent(html_8952ec80ff76bcf1acc18e399f32bc5c);
+                var html_8d024473a80d3635ef38fff939433817 = $(`<div id="html_8d024473a80d3635ef38fff939433817" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Herreveld 1 6142 BX Einighausen</b></div>           <div class="popup-meta">€ 525.000 k.k.</div>           <div class="popup-meta"><i>Sittard-Geleen</i> — 15.5 km</div>           <div class="popup-meta">6142 BX</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/einighausen/huis-herreveld-1/89654447/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.9994817, 5.8300544); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.9994817,5.8300544" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/einighausen/huis-herreveld-1/89654447/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_5a7f42ab81b91d6eddc723a9818cd306.setContent(html_8d024473a80d3635ef38fff939433817);
             
         
 
-        marker_ed0b2bb732b2018c29418a161b5e9f89.bindPopup(popup_69fa5648695091d24836587bdf7a06e9)
+        marker_93835c4abb2c7474e3ed1314300550fe.bindPopup(popup_5a7f42ab81b91d6eddc723a9818cd306)
         ;
 
         
     
     
-            marker_ed0b2bb732b2018c29418a161b5e9f89.bindTooltip(
+            marker_93835c4abb2c7474e3ed1314300550fe.bindTooltip(
                 `<div>
                      Sittard-Geleen | € 525.000 k.k.
                  </div>`,
@@ -1056,28 +1254,28 @@
             );
         
     
-            var marker_154316c9b549267da0cb8a4cfe59c7dc = L.marker(
+            var marker_f6db9fa3c21e090ac3b25b389e3fa083 = L.marker(
                 [50.7801867, 5.7051511],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_624f82eea1cba1bcaa1570509eaddd76 = L.popup({"maxWidth": 380});
+        var popup_d513d573bb8cdc9398bfde780233df9c = L.popup({"maxWidth": 420});
 
         
             
-                var html_8e90b338a4dd66f1bd84615497f8a0f4 = $(`<div id="html_8e90b338a4dd66f1bd84615497f8a0f4" style="width: 100.0%; height: 100.0%;"><b>Marathon 11 6245 EZ Eijsden</b><br>€ 689.000 k.k.<br><i>Eijsden-Margraten</i> — 11.8 km<br>6245 EZ<br><br><a href='https://www.funda.nl/detail/koop/eijsden/huis-marathon-11/89670862/' target='_blank'>link</a></div>`)[0];
-                popup_624f82eea1cba1bcaa1570509eaddd76.setContent(html_8e90b338a4dd66f1bd84615497f8a0f4);
+                var html_546f1adc8234460fdc4c6f8c2c898b0d = $(`<div id="html_546f1adc8234460fdc4c6f8c2c898b0d" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Marathon 11 6245 EZ Eijsden</b></div>           <div class="popup-meta">€ 689.000 k.k.</div>           <div class="popup-meta"><i>Eijsden-Margraten</i> — 11.8 km</div>           <div class="popup-meta">6245 EZ</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/eijsden/huis-marathon-11/89670862/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.7801867, 5.7051511); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.7801867,5.7051511" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/eijsden/huis-marathon-11/89670862/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_d513d573bb8cdc9398bfde780233df9c.setContent(html_546f1adc8234460fdc4c6f8c2c898b0d);
             
         
 
-        marker_154316c9b549267da0cb8a4cfe59c7dc.bindPopup(popup_624f82eea1cba1bcaa1570509eaddd76)
+        marker_f6db9fa3c21e090ac3b25b389e3fa083.bindPopup(popup_d513d573bb8cdc9398bfde780233df9c)
         ;
 
         
     
     
-            marker_154316c9b549267da0cb8a4cfe59c7dc.bindTooltip(
+            marker_f6db9fa3c21e090ac3b25b389e3fa083.bindTooltip(
                 `<div>
                      Eijsden-Margraten | € 689.000 k.k.
                  </div>`,
@@ -1085,28 +1283,28 @@
             );
         
     
-            var marker_79b6a36cb759f31691830c9ec301be31 = L.marker(
+            var marker_503e14e11bbdd6f324c02dc84c5bd5e5 = L.marker(
                 [50.9128655, 6.0550546],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_8d1f7372826b26a446c0e716d2db005e = L.popup({"maxWidth": 380});
+        var popup_694e13d522f1f15e5671a555ec2cadaa = L.popup({"maxWidth": 420});
 
         
             
-                var html_e34a4ad203c421fc0f500e2ac72535c4 = $(`<div id="html_e34a4ad203c421fc0f500e2ac72535c4" style="width: 100.0%; height: 100.0%;"><b>Europaweg-Zuid 192 6374 KW Landgraaf</b><br>€ 374.000 k.k.<br><i>Landgraaf</i> — 17.9 km<br>6374 KW<br><br><a href='https://www.funda.nl/detail/koop/landgraaf/huis-europaweg-zuid-192/43095014/' target='_blank'>link</a></div>`)[0];
-                popup_8d1f7372826b26a446c0e716d2db005e.setContent(html_e34a4ad203c421fc0f500e2ac72535c4);
+                var html_a9d8e7eba6de4a449bd6c4ef0390869d = $(`<div id="html_a9d8e7eba6de4a449bd6c4ef0390869d" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Europaweg-Zuid 192 6374 KW Landgraaf</b></div>           <div class="popup-meta">€ 374.000 k.k.</div>           <div class="popup-meta"><i>Landgraaf</i> — 17.9 km</div>           <div class="popup-meta">6374 KW</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/landgraaf/huis-europaweg-zuid-192/43095014/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.9128655, 6.0550546); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.9128655,6.0550546" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/landgraaf/huis-europaweg-zuid-192/43095014/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_694e13d522f1f15e5671a555ec2cadaa.setContent(html_a9d8e7eba6de4a449bd6c4ef0390869d);
             
         
 
-        marker_79b6a36cb759f31691830c9ec301be31.bindPopup(popup_8d1f7372826b26a446c0e716d2db005e)
+        marker_503e14e11bbdd6f324c02dc84c5bd5e5.bindPopup(popup_694e13d522f1f15e5671a555ec2cadaa)
         ;
 
         
     
     
-            marker_79b6a36cb759f31691830c9ec301be31.bindTooltip(
+            marker_503e14e11bbdd6f324c02dc84c5bd5e5.bindTooltip(
                 `<div>
                      Landgraaf | € 374.000 k.k.
                  </div>`,
@@ -1114,28 +1312,28 @@
             );
         
     
-            var marker_bc347311d7964620dcfe0cf788f7daaa = L.marker(
+            var marker_f6ef4512232555e8f093acf9bd5b5e4a = L.marker(
                 [50.9549965, 5.8482428],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_365d6480c1d17737dfaac25136ebc2fa = L.popup({"maxWidth": 380});
+        var popup_3e352f38690b6bb7220c9c0064099b30 = L.popup({"maxWidth": 420});
 
         
             
-                var html_4dcb52e0719d66e678581f7002964a5c = $(`<div id="html_4dcb52e0719d66e678581f7002964a5c" style="width: 100.0%; height: 100.0%;"><b>Pascal Visschersstraat 38 6174 RC Sweikhuizen</b><br>€ 450.000 k.k.<br><i>Beekdaelen</i> — 10.7 km<br>6174 RC<br><br><a href='https://www.funda.nl/detail/koop/sweikhuizen/huis-pascal-visschersstraat-38/43293963/' target='_blank'>link</a></div>`)[0];
-                popup_365d6480c1d17737dfaac25136ebc2fa.setContent(html_4dcb52e0719d66e678581f7002964a5c);
+                var html_44114037071ded747a163390ff940ff0 = $(`<div id="html_44114037071ded747a163390ff940ff0" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Pascal Visschersstraat 38 6174 RC Sweikhuizen</b></div>           <div class="popup-meta">€ 450.000 k.k.</div>           <div class="popup-meta"><i>Beekdaelen</i> — 10.7 km</div>           <div class="popup-meta">6174 RC</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/sweikhuizen/huis-pascal-visschersstraat-38/43293963/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.9549965, 5.8482428); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.9549965,5.8482428" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/sweikhuizen/huis-pascal-visschersstraat-38/43293963/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_3e352f38690b6bb7220c9c0064099b30.setContent(html_44114037071ded747a163390ff940ff0);
             
         
 
-        marker_bc347311d7964620dcfe0cf788f7daaa.bindPopup(popup_365d6480c1d17737dfaac25136ebc2fa)
+        marker_f6ef4512232555e8f093acf9bd5b5e4a.bindPopup(popup_3e352f38690b6bb7220c9c0064099b30)
         ;
 
         
     
     
-            marker_bc347311d7964620dcfe0cf788f7daaa.bindTooltip(
+            marker_f6ef4512232555e8f093acf9bd5b5e4a.bindTooltip(
                 `<div>
                      Beekdaelen | € 450.000 k.k.
                  </div>`,
@@ -1143,28 +1341,28 @@
             );
         
     
-            var marker_9dcb67fe19b76da960a9ef2a114c7db5 = L.marker(
+            var marker_773b7b95d1c3c8f5bcade8f639666281 = L.marker(
                 [50.995184, 5.8992479],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_7e350e82607ca65082ccd7de3e1e3abc = L.popup({"maxWidth": 380});
+        var popup_d2a236b50cdf1c147b2aae9bf2685a0b = L.popup({"maxWidth": 420});
 
         
             
-                var html_3482944a413eb96ff28d82e911145ae9 = $(`<div id="html_3482944a413eb96ff28d82e911145ae9" style="width: 100.0%; height: 100.0%;"><b>Kapellenstrasse 10 Selfkant, Duitsland</b><br>€ 525.000 k.k.<br><i>Sittard-Geleen</i> — 16.1 km<br>selfkant<br><br><a href='https://www.funda.nl/detail/koop/selfkant/huis-kapellenstrasse-10/43833302/' target='_blank'>link</a></div>`)[0];
-                popup_7e350e82607ca65082ccd7de3e1e3abc.setContent(html_3482944a413eb96ff28d82e911145ae9);
+                var html_b7a8ac68203d51d665175ce71991602b = $(`<div id="html_b7a8ac68203d51d665175ce71991602b" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Kapellenstrasse 10 Selfkant, Duitsland</b></div>           <div class="popup-meta">€ 525.000 k.k.</div>           <div class="popup-meta"><i>Sittard-Geleen</i> — 16.1 km</div>           <div class="popup-meta">selfkant</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/selfkant/huis-kapellenstrasse-10/43833302/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.995184, 5.8992479); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.995184,5.8992479" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/selfkant/huis-kapellenstrasse-10/43833302/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_d2a236b50cdf1c147b2aae9bf2685a0b.setContent(html_b7a8ac68203d51d665175ce71991602b);
             
         
 
-        marker_9dcb67fe19b76da960a9ef2a114c7db5.bindPopup(popup_7e350e82607ca65082ccd7de3e1e3abc)
+        marker_773b7b95d1c3c8f5bcade8f639666281.bindPopup(popup_d2a236b50cdf1c147b2aae9bf2685a0b)
         ;
 
         
     
     
-            marker_9dcb67fe19b76da960a9ef2a114c7db5.bindTooltip(
+            marker_773b7b95d1c3c8f5bcade8f639666281.bindTooltip(
                 `<div>
                      Sittard-Geleen | € 525.000 k.k.
                  </div>`,
@@ -1172,28 +1370,28 @@
             );
         
     
-            var marker_00ea69b38b074c6de6a679ad74b802e1 = L.marker(
+            var marker_cabaf20e3a0a701395d9cd844aa78936 = L.marker(
                 [50.9284554, 5.9371488],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_07458d8bd97c819d2985d5335970c7a6 = L.popup({"maxWidth": 380});
+        var popup_a6594af1907215721ea2d065fbf76465 = L.popup({"maxWidth": 420});
 
         
             
-                var html_ebd96310973fe6d43063fbcb0409dd13 = $(`<div id="html_ebd96310973fe6d43063fbcb0409dd13" style="width: 100.0%; height: 100.0%;"><b>Kouvenderstraat 231 6431 HE Hoensbroek</b><br>€ 325.000 k.k.<br><i>Heerlen</i> — 11.5 km<br>6431 HE<br><br><a href='https://www.funda.nl/detail/koop/hoensbroek/huis-kouvenderstraat-231/89662019/' target='_blank'>link</a></div>`)[0];
-                popup_07458d8bd97c819d2985d5335970c7a6.setContent(html_ebd96310973fe6d43063fbcb0409dd13);
+                var html_4d7c20a7d2a5d5cf944b686f7af100ae = $(`<div id="html_4d7c20a7d2a5d5cf944b686f7af100ae" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Kouvenderstraat 231 6431 HE Hoensbroek</b></div>           <div class="popup-meta">€ 325.000 k.k.</div>           <div class="popup-meta"><i>Heerlen</i> — 11.5 km</div>           <div class="popup-meta">6431 HE</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/hoensbroek/huis-kouvenderstraat-231/89662019/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.9284554, 5.9371488); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.9284554,5.9371488" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/hoensbroek/huis-kouvenderstraat-231/89662019/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_a6594af1907215721ea2d065fbf76465.setContent(html_4d7c20a7d2a5d5cf944b686f7af100ae);
             
         
 
-        marker_00ea69b38b074c6de6a679ad74b802e1.bindPopup(popup_07458d8bd97c819d2985d5335970c7a6)
+        marker_cabaf20e3a0a701395d9cd844aa78936.bindPopup(popup_a6594af1907215721ea2d065fbf76465)
         ;
 
         
     
     
-            marker_00ea69b38b074c6de6a679ad74b802e1.bindTooltip(
+            marker_cabaf20e3a0a701395d9cd844aa78936.bindTooltip(
                 `<div>
                      Heerlen | € 325.000 k.k.
                  </div>`,
@@ -1201,28 +1399,28 @@
             );
         
     
-            var marker_737b34b66abd3f97b0b500ed834c3947 = L.marker(
+            var marker_cf14a858d34da9f36ef44130b19d4fdf = L.marker(
                 [50.7636976, 5.7314848],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_4e11c5db4801c189d9adce1a5eae7b04 = L.popup({"maxWidth": 380});
+        var popup_11952891523c8f07e968f88c76eb98e4 = L.popup({"maxWidth": 420});
 
         
             
-                var html_d03bccedb54750fea63941379fd28d40 = $(`<div id="html_d03bccedb54750fea63941379fd28d40" style="width: 100.0%; height: 100.0%;"><b>Kerkplein 14 6245 KH Eijsden</b><br>€ 349.000 k.k.<br><i>Eijsden-Margraten</i> — 12.3 km<br>6245 KH<br><br><a href='https://www.funda.nl/detail/koop/eijsden/huis-kerkplein-14/89654346/' target='_blank'>link</a></div>`)[0];
-                popup_4e11c5db4801c189d9adce1a5eae7b04.setContent(html_d03bccedb54750fea63941379fd28d40);
+                var html_a1fc78d38630b182289cf818833db3d5 = $(`<div id="html_a1fc78d38630b182289cf818833db3d5" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Kerkplein 14 6245 KH Eijsden</b></div>           <div class="popup-meta">€ 349.000 k.k.</div>           <div class="popup-meta"><i>Eijsden-Margraten</i> — 12.3 km</div>           <div class="popup-meta">6245 KH</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.funda.nl/detail/koop/eijsden/huis-kerkplein-14/89654346/" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.7636976, 5.7314848); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.7636976,5.7314848" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.funda.nl/detail/koop/eijsden/huis-kerkplein-14/89654346/'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_11952891523c8f07e968f88c76eb98e4.setContent(html_a1fc78d38630b182289cf818833db3d5);
             
         
 
-        marker_737b34b66abd3f97b0b500ed834c3947.bindPopup(popup_4e11c5db4801c189d9adce1a5eae7b04)
+        marker_cf14a858d34da9f36ef44130b19d4fdf.bindPopup(popup_11952891523c8f07e968f88c76eb98e4)
         ;
 
         
     
     
-            marker_737b34b66abd3f97b0b500ed834c3947.bindTooltip(
+            marker_cf14a858d34da9f36ef44130b19d4fdf.bindTooltip(
                 `<div>
                      Eijsden-Margraten | € 349.000 k.k.
                  </div>`,
@@ -1230,28 +1428,28 @@
             );
         
     
-            var marker_47706b79f6a0386add68f2b54f5a7527 = L.marker(
+            var marker_59059c92b651b3b290538e1b6a9b4b1b = L.marker(
                 [50.9727019, 5.6653085],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_c7a443b7b98c8b9a56b52720e26bb17f = L.popup({"maxWidth": 380});
+        var popup_7ba6ce2eca654a5299d105db7b162a67 = L.popup({"maxWidth": 420});
 
         
             
-                var html_4dc7c6f9c9a1d87eebd454dbf66f325d = $(`<div id="html_4dc7c6f9c9a1d87eebd454dbf66f325d" style="width: 100.0%; height: 100.0%;"><b>Residentie Carbon</b><br>€ 260.000<br><i>Maasmechelen</i> — 16.2 km<br>3630 Maasmechelen<br><br><a href='https://www.immoweb.be/nl/zoekertje/nieuwbouwproject-appartementen/te-koop/maasmechelen/3630/20665653' target='_blank'>link</a></div>`)[0];
-                popup_c7a443b7b98c8b9a56b52720e26bb17f.setContent(html_4dc7c6f9c9a1d87eebd454dbf66f325d);
+                var html_60260bb94bfdc7135b404e839470e154 = $(`<div id="html_60260bb94bfdc7135b404e839470e154" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Residentie Carbon</b></div>           <div class="popup-meta">€ 260.000</div>           <div class="popup-meta"><i>Maasmechelen</i> — 16.2 km</div>           <div class="popup-meta">3630 Maasmechelen</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.immoweb.be/nl/zoekertje/nieuwbouwproject-appartementen/te-koop/maasmechelen/3630/20665653" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.9727019, 5.6653085); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.9727019,5.6653085" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.immoweb.be/nl/zoekertje/nieuwbouwproject-appartementen/te-koop/maasmechelen/3630/20665653'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_7ba6ce2eca654a5299d105db7b162a67.setContent(html_60260bb94bfdc7135b404e839470e154);
             
         
 
-        marker_47706b79f6a0386add68f2b54f5a7527.bindPopup(popup_c7a443b7b98c8b9a56b52720e26bb17f)
+        marker_59059c92b651b3b290538e1b6a9b4b1b.bindPopup(popup_7ba6ce2eca654a5299d105db7b162a67)
         ;
 
         
     
     
-            marker_47706b79f6a0386add68f2b54f5a7527.bindTooltip(
+            marker_59059c92b651b3b290538e1b6a9b4b1b.bindTooltip(
                 `<div>
                      Maasmechelen | € 260.000
                  </div>`,
@@ -1259,28 +1457,28 @@
             );
         
     
-            var marker_9a8790fbce485ae159ad3620cc465bcf = L.marker(
+            var marker_83f818dd89a002897afab43741b2c3fc = L.marker(
                 [50.8036484, 5.5857068],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_c11df069e744a67707a6163254f76703 = L.popup({"maxWidth": 380});
+        var popup_462fd3be4198cfd5f3cf9f36da3f860f = L.popup({"maxWidth": 420});
 
         
             
-                var html_264e89f2c40a354ec0ccfe1ad292b042 = $(`<div id="html_264e89f2c40a354ec0ccfe1ad292b042" style="width: 100.0%; height: 100.0%;"><b>Benedenverdieping</b><br>€ 319.000<br><i>Riemst</i> — 17.3 km<br>3770 Riemst<br><br><a href='https://www.immoweb.be/nl/zoekertje/benedenverdieping/te-koop/riemst-heukelom/3770/21275624' target='_blank'>link</a></div>`)[0];
-                popup_c11df069e744a67707a6163254f76703.setContent(html_264e89f2c40a354ec0ccfe1ad292b042);
+                var html_60893ef0242900b5482f1e7cb973467b = $(`<div id="html_60893ef0242900b5482f1e7cb973467b" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Benedenverdieping</b></div>           <div class="popup-meta">€ 319.000</div>           <div class="popup-meta"><i>Riemst</i> — 17.3 km</div>           <div class="popup-meta">3770 Riemst</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.immoweb.be/nl/zoekertje/benedenverdieping/te-koop/riemst-heukelom/3770/21275624" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.8036484, 5.5857068); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.8036484,5.5857068" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.immoweb.be/nl/zoekertje/benedenverdieping/te-koop/riemst-heukelom/3770/21275624'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_462fd3be4198cfd5f3cf9f36da3f860f.setContent(html_60893ef0242900b5482f1e7cb973467b);
             
         
 
-        marker_9a8790fbce485ae159ad3620cc465bcf.bindPopup(popup_c11df069e744a67707a6163254f76703)
+        marker_83f818dd89a002897afab43741b2c3fc.bindPopup(popup_462fd3be4198cfd5f3cf9f36da3f860f)
         ;
 
         
     
     
-            marker_9a8790fbce485ae159ad3620cc465bcf.bindTooltip(
+            marker_83f818dd89a002897afab43741b2c3fc.bindTooltip(
                 `<div>
                      Riemst | € 319.000
                  </div>`,
@@ -1288,28 +1486,28 @@
             );
         
     
-            var marker_194667836fe02c3e01e21ec899f30968 = L.marker(
+            var marker_ef37f9c2897fd364a0162d862e2e1db7 = L.marker(
                 [50.9285242, 5.6625986],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_294213b8b8fa5f1f50ba367af58682f5 = L.popup({"maxWidth": 380});
+        var popup_27b9c810e2820a12cbc37313540b976b = L.popup({"maxWidth": 420});
 
         
             
-                var html_6b2839ff6449ccb65850e89b0354b091 = $(`<div id="html_6b2839ff6449ccb65850e89b0354b091" style="width: 100.0%; height: 100.0%;"><b>Huis</b><br>€ 299.000<br><i>Lanaken</i> — 13.0 km<br>3621 Lanaken<br><br><a href='https://www.immoweb.be/nl/zoekertje/huis/te-koop/lanaken/3621/21367446' target='_blank'>link</a></div>`)[0];
-                popup_294213b8b8fa5f1f50ba367af58682f5.setContent(html_6b2839ff6449ccb65850e89b0354b091);
+                var html_c5b45f575336343fd7276bb78cea76ba = $(`<div id="html_c5b45f575336343fd7276bb78cea76ba" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Huis</b></div>           <div class="popup-meta">€ 299.000</div>           <div class="popup-meta"><i>Lanaken</i> — 13.0 km</div>           <div class="popup-meta">3621 Lanaken</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.immoweb.be/nl/zoekertje/huis/te-koop/lanaken/3621/21367446" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.9285242, 5.6625986); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.9285242,5.6625986" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.immoweb.be/nl/zoekertje/huis/te-koop/lanaken/3621/21367446'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_27b9c810e2820a12cbc37313540b976b.setContent(html_c5b45f575336343fd7276bb78cea76ba);
             
         
 
-        marker_194667836fe02c3e01e21ec899f30968.bindPopup(popup_294213b8b8fa5f1f50ba367af58682f5)
+        marker_ef37f9c2897fd364a0162d862e2e1db7.bindPopup(popup_27b9c810e2820a12cbc37313540b976b)
         ;
 
         
     
     
-            marker_194667836fe02c3e01e21ec899f30968.bindTooltip(
+            marker_ef37f9c2897fd364a0162d862e2e1db7.bindTooltip(
                 `<div>
                      Lanaken | € 299.000
                  </div>`,
@@ -1317,28 +1515,28 @@
             );
         
     
-            var marker_3e7a0432c046e13dbac515da82073776 = L.marker(
+            var marker_cac6b0ca6a4db2848d807fa99f3eeafa = L.marker(
                 [50.9285242, 5.6625986],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_a02e512e3f60b2200cc00df7ffe83efb = L.popup({"maxWidth": 380});
+        var popup_0ecdc4fe9c55e35316d3349f7977646c = L.popup({"maxWidth": 420});
 
         
             
-                var html_adae4afd03d6afef605a36250ba820d0 = $(`<div id="html_adae4afd03d6afef605a36250ba820d0" style="width: 100.0%; height: 100.0%;"><b>Huis</b><br>€ 279.000<br><i>Lanaken</i> — 13.0 km<br>3621 Lanaken<br><br><a href='https://www.immoweb.be/nl/zoekertje/huis/te-koop/lanaken/3621/21223945' target='_blank'>link</a></div>`)[0];
-                popup_a02e512e3f60b2200cc00df7ffe83efb.setContent(html_adae4afd03d6afef605a36250ba820d0);
+                var html_d43a4fc88095e1241058b516c8417439 = $(`<div id="html_d43a4fc88095e1241058b516c8417439" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Huis</b></div>           <div class="popup-meta">€ 279.000</div>           <div class="popup-meta"><i>Lanaken</i> — 13.0 km</div>           <div class="popup-meta">3621 Lanaken</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.immoweb.be/nl/zoekertje/huis/te-koop/lanaken/3621/21223945" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.9285242, 5.6625986); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.9285242,5.6625986" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.immoweb.be/nl/zoekertje/huis/te-koop/lanaken/3621/21223945'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_0ecdc4fe9c55e35316d3349f7977646c.setContent(html_d43a4fc88095e1241058b516c8417439);
             
         
 
-        marker_3e7a0432c046e13dbac515da82073776.bindPopup(popup_a02e512e3f60b2200cc00df7ffe83efb)
+        marker_cac6b0ca6a4db2848d807fa99f3eeafa.bindPopup(popup_0ecdc4fe9c55e35316d3349f7977646c)
         ;
 
         
     
     
-            marker_3e7a0432c046e13dbac515da82073776.bindTooltip(
+            marker_cac6b0ca6a4db2848d807fa99f3eeafa.bindTooltip(
                 `<div>
                      Lanaken | € 279.000
                  </div>`,
@@ -1346,28 +1544,28 @@
             );
         
     
-            var marker_5f40807ac547d10381f92c0186a6ef48 = L.marker(
+            var marker_2cccb88321e23ee61724f9a127e91372 = L.marker(
                 [50.9285242, 5.6625986],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_b92c91673a246ab62c0becdb39495bb3 = L.popup({"maxWidth": 380});
+        var popup_ac5f6c47c5512533d8fb23888c46a966 = L.popup({"maxWidth": 420});
 
         
             
-                var html_ff5c1675959df6a4ac36cc3b9d19a8cd = $(`<div id="html_ff5c1675959df6a4ac36cc3b9d19a8cd" style="width: 100.0%; height: 100.0%;"><b>Huis</b><br>€ 339.000<br><i>Lanaken</i> — 13.0 km<br>3621 Rekem<br><br><a href='https://www.immoweb.be/nl/zoekertje/huis/te-koop/rekem/3621/21096761' target='_blank'>link</a></div>`)[0];
-                popup_b92c91673a246ab62c0becdb39495bb3.setContent(html_ff5c1675959df6a4ac36cc3b9d19a8cd);
+                var html_a1c8ed8f84fe5d472c1c5799507345c0 = $(`<div id="html_a1c8ed8f84fe5d472c1c5799507345c0" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Huis</b></div>           <div class="popup-meta">€ 339.000</div>           <div class="popup-meta"><i>Lanaken</i> — 13.0 km</div>           <div class="popup-meta">3621 Rekem</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.immoweb.be/nl/zoekertje/huis/te-koop/rekem/3621/21096761" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.9285242, 5.6625986); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.9285242,5.6625986" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.immoweb.be/nl/zoekertje/huis/te-koop/rekem/3621/21096761'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_ac5f6c47c5512533d8fb23888c46a966.setContent(html_a1c8ed8f84fe5d472c1c5799507345c0);
             
         
 
-        marker_5f40807ac547d10381f92c0186a6ef48.bindPopup(popup_b92c91673a246ab62c0becdb39495bb3)
+        marker_2cccb88321e23ee61724f9a127e91372.bindPopup(popup_ac5f6c47c5512533d8fb23888c46a966)
         ;
 
         
     
     
-            marker_5f40807ac547d10381f92c0186a6ef48.bindTooltip(
+            marker_2cccb88321e23ee61724f9a127e91372.bindTooltip(
                 `<div>
                      Lanaken | € 339.000
                  </div>`,
@@ -1375,28 +1573,28 @@
             );
         
     
-            var marker_f2dc1065b9b18067e5c8d1342d9c8566 = L.marker(
+            var marker_94b0a84d1ef24bc5172c86425919aaa6 = L.marker(
                 [50.8036484, 5.5857068],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_b63f038173648b3e0775854a4bbabed2 = L.popup({"maxWidth": 380});
+        var popup_2c7c76db44af68ce954657b11b367847 = L.popup({"maxWidth": 420});
 
         
             
-                var html_2dfcdfe0ce6ccdeb576774c7c8368acc = $(`<div id="html_2dfcdfe0ce6ccdeb576774c7c8368acc" style="width: 100.0%; height: 100.0%;"><b>Duplex</b><br>€ 295.000<br><i>Riemst</i> — 17.3 km<br>3770 Riemst<br><br><a href='https://www.immoweb.be/nl/zoekertje/duplex/te-koop/riemst/3770/21400890' target='_blank'>link</a></div>`)[0];
-                popup_b63f038173648b3e0775854a4bbabed2.setContent(html_2dfcdfe0ce6ccdeb576774c7c8368acc);
+                var html_c79d3ddb7a846b46bf88fac41e112826 = $(`<div id="html_c79d3ddb7a846b46bf88fac41e112826" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Duplex</b></div>           <div class="popup-meta">€ 295.000</div>           <div class="popup-meta"><i>Riemst</i> — 17.3 km</div>           <div class="popup-meta">3770 Riemst</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.immoweb.be/nl/zoekertje/duplex/te-koop/riemst/3770/21400890" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.8036484, 5.5857068); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.8036484,5.5857068" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.immoweb.be/nl/zoekertje/duplex/te-koop/riemst/3770/21400890'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_2c7c76db44af68ce954657b11b367847.setContent(html_c79d3ddb7a846b46bf88fac41e112826);
             
         
 
-        marker_f2dc1065b9b18067e5c8d1342d9c8566.bindPopup(popup_b63f038173648b3e0775854a4bbabed2)
+        marker_94b0a84d1ef24bc5172c86425919aaa6.bindPopup(popup_2c7c76db44af68ce954657b11b367847)
         ;
 
         
     
     
-            marker_f2dc1065b9b18067e5c8d1342d9c8566.bindTooltip(
+            marker_94b0a84d1ef24bc5172c86425919aaa6.bindTooltip(
                 `<div>
                      Riemst | € 295.000
                  </div>`,
@@ -1404,28 +1602,28 @@
             );
         
     
-            var marker_454a31a6fcb4e2464ccd7b835994adc3 = L.marker(
+            var marker_376c2d2de8fce72ceca835c97285e56b = L.marker(
                 [50.8036484, 5.5857068],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_cba6582a3db28f2e619f7d4a1129c763 = L.popup({"maxWidth": 380});
+        var popup_87aa985b65beaeeb9db7e22786a4a942 = L.popup({"maxWidth": 420});
 
         
             
-                var html_7bb1aa7a7b203e4b984ccad91deda224 = $(`<div id="html_7bb1aa7a7b203e4b984ccad91deda224" style="width: 100.0%; height: 100.0%;"><b>Huis</b><br>€ 349.000<br><i>Riemst</i> — 17.3 km<br>3770 Riemst<br><br><a href='https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21398181' target='_blank'>link</a></div>`)[0];
-                popup_cba6582a3db28f2e619f7d4a1129c763.setContent(html_7bb1aa7a7b203e4b984ccad91deda224);
+                var html_44aeecf1a9e97b013fda224679d1a05e = $(`<div id="html_44aeecf1a9e97b013fda224679d1a05e" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Huis</b></div>           <div class="popup-meta">€ 349.000</div>           <div class="popup-meta"><i>Riemst</i> — 17.3 km</div>           <div class="popup-meta">3770 Riemst</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21398181" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.8036484, 5.5857068); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.8036484,5.5857068" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21398181'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_87aa985b65beaeeb9db7e22786a4a942.setContent(html_44aeecf1a9e97b013fda224679d1a05e);
             
         
 
-        marker_454a31a6fcb4e2464ccd7b835994adc3.bindPopup(popup_cba6582a3db28f2e619f7d4a1129c763)
+        marker_376c2d2de8fce72ceca835c97285e56b.bindPopup(popup_87aa985b65beaeeb9db7e22786a4a942)
         ;
 
         
     
     
-            marker_454a31a6fcb4e2464ccd7b835994adc3.bindTooltip(
+            marker_376c2d2de8fce72ceca835c97285e56b.bindTooltip(
                 `<div>
                      Riemst | € 349.000
                  </div>`,
@@ -1433,28 +1631,28 @@
             );
         
     
-            var marker_003d97d4365f42f73424443706a0a559 = L.marker(
+            var marker_bf19ada09077b1d6fa77dfa0008bdc2e = L.marker(
                 [50.8036484, 5.5857068],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_fb819fce73a8f4474b8934dce00960ed = L.popup({"maxWidth": 380});
+        var popup_d19b09d73cc7fd42bfee7e60418cb805 = L.popup({"maxWidth": 420});
 
         
             
-                var html_c408a86e09a710739af18329102ab3d5 = $(`<div id="html_c408a86e09a710739af18329102ab3d5" style="width: 100.0%; height: 100.0%;"><b>Huis</b><br>€ 399.000<br><i>Riemst</i> — 17.3 km<br>3770 Riemst<br><br><a href='https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21390544' target='_blank'>link</a></div>`)[0];
-                popup_fb819fce73a8f4474b8934dce00960ed.setContent(html_c408a86e09a710739af18329102ab3d5);
+                var html_3349aa05ebce31b470e9a47f18ffbedc = $(`<div id="html_3349aa05ebce31b470e9a47f18ffbedc" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Huis</b></div>           <div class="popup-meta">€ 399.000</div>           <div class="popup-meta"><i>Riemst</i> — 17.3 km</div>           <div class="popup-meta">3770 Riemst</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21390544" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.8036484, 5.5857068); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.8036484,5.5857068" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21390544'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_d19b09d73cc7fd42bfee7e60418cb805.setContent(html_3349aa05ebce31b470e9a47f18ffbedc);
             
         
 
-        marker_003d97d4365f42f73424443706a0a559.bindPopup(popup_fb819fce73a8f4474b8934dce00960ed)
+        marker_bf19ada09077b1d6fa77dfa0008bdc2e.bindPopup(popup_d19b09d73cc7fd42bfee7e60418cb805)
         ;
 
         
     
     
-            marker_003d97d4365f42f73424443706a0a559.bindTooltip(
+            marker_bf19ada09077b1d6fa77dfa0008bdc2e.bindTooltip(
                 `<div>
                      Riemst | € 399.000
                  </div>`,
@@ -1462,28 +1660,28 @@
             );
         
     
-            var marker_6d885e505f7b2acbd7d820385e791e77 = L.marker(
+            var marker_6b32acf1e3343139bf3d425ee47eb6de = L.marker(
                 [50.8329146, 5.5895873],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_5c462d6baef4415e334f6e46b517fda1 = L.popup({"maxWidth": 380});
+        var popup_8f7b20d390ba6226c874d26a38c0a48d = L.popup({"maxWidth": 420});
 
         
             
-                var html_6376ed768c48603e3bdefe8bfc5c6a30 = $(`<div id="html_6376ed768c48603e3bdefe8bfc5c6a30" style="width: 100.0%; height: 100.0%;"><b>Appartement</b><br>€ 336.380<br><i>Riemst</i> — 16.1 km<br>3770 Vlijtingen<br><br><a href='https://www.immoweb.be/nl/zoekertje/appartement/te-koop/vlijtingen/3770/21377648' target='_blank'>link</a></div>`)[0];
-                popup_5c462d6baef4415e334f6e46b517fda1.setContent(html_6376ed768c48603e3bdefe8bfc5c6a30);
+                var html_15763204487620d687d04c6cfb9e34d1 = $(`<div id="html_15763204487620d687d04c6cfb9e34d1" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Appartement</b></div>           <div class="popup-meta">€ 336.380</div>           <div class="popup-meta"><i>Riemst</i> — 16.1 km</div>           <div class="popup-meta">3770 Vlijtingen</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.immoweb.be/nl/zoekertje/appartement/te-koop/vlijtingen/3770/21377648" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.8329146, 5.5895873); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.8329146,5.5895873" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.immoweb.be/nl/zoekertje/appartement/te-koop/vlijtingen/3770/21377648'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_8f7b20d390ba6226c874d26a38c0a48d.setContent(html_15763204487620d687d04c6cfb9e34d1);
             
         
 
-        marker_6d885e505f7b2acbd7d820385e791e77.bindPopup(popup_5c462d6baef4415e334f6e46b517fda1)
+        marker_6b32acf1e3343139bf3d425ee47eb6de.bindPopup(popup_8f7b20d390ba6226c874d26a38c0a48d)
         ;
 
         
     
     
-            marker_6d885e505f7b2acbd7d820385e791e77.bindTooltip(
+            marker_6b32acf1e3343139bf3d425ee47eb6de.bindTooltip(
                 `<div>
                      Riemst | € 336.380
                  </div>`,
@@ -1491,28 +1689,28 @@
             );
         
     
-            var marker_e4a370c6d3672b93e086c346e296ba25 = L.marker(
+            var marker_e09bcf8c647b962e3577748eeb72569e = L.marker(
                 [50.8036484, 5.5857068],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_98cdd3529c0dede9ceb480e7060bcca4 = L.popup({"maxWidth": 380});
+        var popup_857e37b0edca9817a0099a9c47355d7c = L.popup({"maxWidth": 420});
 
         
             
-                var html_afc39b68d1f9ff45ce8ce7850665185a = $(`<div id="html_afc39b68d1f9ff45ce8ce7850665185a" style="width: 100.0%; height: 100.0%;"><b>Huis</b><br>€ 299.000<br><i>Riemst</i> — 17.3 km<br>3770 Riemst<br><br><a href='https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21368971' target='_blank'>link</a></div>`)[0];
-                popup_98cdd3529c0dede9ceb480e7060bcca4.setContent(html_afc39b68d1f9ff45ce8ce7850665185a);
+                var html_05c460504c82b3457fab1e4c6f660239 = $(`<div id="html_05c460504c82b3457fab1e4c6f660239" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Huis</b></div>           <div class="popup-meta">€ 299.000</div>           <div class="popup-meta"><i>Riemst</i> — 17.3 km</div>           <div class="popup-meta">3770 Riemst</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21368971" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.8036484, 5.5857068); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.8036484,5.5857068" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21368971'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_857e37b0edca9817a0099a9c47355d7c.setContent(html_05c460504c82b3457fab1e4c6f660239);
             
         
 
-        marker_e4a370c6d3672b93e086c346e296ba25.bindPopup(popup_98cdd3529c0dede9ceb480e7060bcca4)
+        marker_e09bcf8c647b962e3577748eeb72569e.bindPopup(popup_857e37b0edca9817a0099a9c47355d7c)
         ;
 
         
     
     
-            marker_e4a370c6d3672b93e086c346e296ba25.bindTooltip(
+            marker_e09bcf8c647b962e3577748eeb72569e.bindTooltip(
                 `<div>
                      Riemst | € 299.000
                  </div>`,
@@ -1520,28 +1718,28 @@
             );
         
     
-            var marker_e5134766d94d16d8bcb5ecb95fdafee0 = L.marker(
+            var marker_7ec798470fac3ec7caee9d36fa57a492 = L.marker(
                 [50.8036484, 5.5857068],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_2f036e6b0e44199b611b0067121f6fa7 = L.popup({"maxWidth": 380});
+        var popup_6aeaef9b1600f793d506641a74dbe63f = L.popup({"maxWidth": 420});
 
         
             
-                var html_96ccf299c57a55a6117c66ba6ac8c7a6 = $(`<div id="html_96ccf299c57a55a6117c66ba6ac8c7a6" style="width: 100.0%; height: 100.0%;"><b>Huis</b><br>€ 299.000<br><i>Riemst</i> — 17.3 km<br>3770 RIEMST<br><br><a href='https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21355968' target='_blank'>link</a></div>`)[0];
-                popup_2f036e6b0e44199b611b0067121f6fa7.setContent(html_96ccf299c57a55a6117c66ba6ac8c7a6);
+                var html_bdbf478de49c00fc24efd1b165c3e818 = $(`<div id="html_bdbf478de49c00fc24efd1b165c3e818" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Huis</b></div>           <div class="popup-meta">€ 299.000</div>           <div class="popup-meta"><i>Riemst</i> — 17.3 km</div>           <div class="popup-meta">3770 RIEMST</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21355968" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.8036484, 5.5857068); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.8036484,5.5857068" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21355968'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_6aeaef9b1600f793d506641a74dbe63f.setContent(html_bdbf478de49c00fc24efd1b165c3e818);
             
         
 
-        marker_e5134766d94d16d8bcb5ecb95fdafee0.bindPopup(popup_2f036e6b0e44199b611b0067121f6fa7)
+        marker_7ec798470fac3ec7caee9d36fa57a492.bindPopup(popup_6aeaef9b1600f793d506641a74dbe63f)
         ;
 
         
     
     
-            marker_e5134766d94d16d8bcb5ecb95fdafee0.bindTooltip(
+            marker_7ec798470fac3ec7caee9d36fa57a492.bindTooltip(
                 `<div>
                      Riemst | € 299.000
                  </div>`,
@@ -1549,28 +1747,28 @@
             );
         
     
-            var marker_f4b980c6f1d192b00077b9219580d6f5 = L.marker(
+            var marker_00d06c5f0d434b878e3b254ef828c3e3 = L.marker(
                 [50.8036484, 5.5857068],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_4c5ba133bf52ba7a7e5bf3728eb28f4d = L.popup({"maxWidth": 380});
+        var popup_e682219ee0d7639e1c0a845d55892095 = L.popup({"maxWidth": 420});
 
         
             
-                var html_9a6e1f284ad8cff68277f238bf262031 = $(`<div id="html_9a6e1f284ad8cff68277f238bf262031" style="width: 100.0%; height: 100.0%;"><b>Huis</b><br>€ 339.000<br><i>Riemst</i> — 17.3 km<br>3770 RIEMST<br><br><a href='https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21332647' target='_blank'>link</a></div>`)[0];
-                popup_4c5ba133bf52ba7a7e5bf3728eb28f4d.setContent(html_9a6e1f284ad8cff68277f238bf262031);
+                var html_26171e55fd10fde78e592a10ca00cb7c = $(`<div id="html_26171e55fd10fde78e592a10ca00cb7c" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Huis</b></div>           <div class="popup-meta">€ 339.000</div>           <div class="popup-meta"><i>Riemst</i> — 17.3 km</div>           <div class="popup-meta">3770 RIEMST</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21332647" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.8036484, 5.5857068); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.8036484,5.5857068" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21332647'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_e682219ee0d7639e1c0a845d55892095.setContent(html_26171e55fd10fde78e592a10ca00cb7c);
             
         
 
-        marker_f4b980c6f1d192b00077b9219580d6f5.bindPopup(popup_4c5ba133bf52ba7a7e5bf3728eb28f4d)
+        marker_00d06c5f0d434b878e3b254ef828c3e3.bindPopup(popup_e682219ee0d7639e1c0a845d55892095)
         ;
 
         
     
     
-            marker_f4b980c6f1d192b00077b9219580d6f5.bindTooltip(
+            marker_00d06c5f0d434b878e3b254ef828c3e3.bindTooltip(
                 `<div>
                      Riemst | € 339.000
                  </div>`,
@@ -1578,28 +1776,28 @@
             );
         
     
-            var marker_a0b97b8597ff3004893958ce0443ae92 = L.marker(
+            var marker_f7411d4ab5aa473852f3fc4f3e2c9030 = L.marker(
                 [50.8036484, 5.5857068],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_ca17ac382043917a5556f0588e3e8f0f = L.popup({"maxWidth": 380});
+        var popup_c2f2329743ed9948b79646d56bb65621 = L.popup({"maxWidth": 420});
 
         
             
-                var html_aad782220c2d25e984f64da455b7ba9d = $(`<div id="html_aad782220c2d25e984f64da455b7ba9d" style="width: 100.0%; height: 100.0%;"><b>Duplex</b><br>€ 329.000<br><i>Riemst</i> — 17.3 km<br>3770 Riemst<br><br><a href='https://www.immoweb.be/nl/zoekertje/duplex/te-koop/riemst/3770/21327821' target='_blank'>link</a></div>`)[0];
-                popup_ca17ac382043917a5556f0588e3e8f0f.setContent(html_aad782220c2d25e984f64da455b7ba9d);
+                var html_3a3053bd4adfc16a96611c2124f63b26 = $(`<div id="html_3a3053bd4adfc16a96611c2124f63b26" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Duplex</b></div>           <div class="popup-meta">€ 329.000</div>           <div class="popup-meta"><i>Riemst</i> — 17.3 km</div>           <div class="popup-meta">3770 Riemst</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.immoweb.be/nl/zoekertje/duplex/te-koop/riemst/3770/21327821" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.8036484, 5.5857068); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.8036484,5.5857068" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.immoweb.be/nl/zoekertje/duplex/te-koop/riemst/3770/21327821'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_c2f2329743ed9948b79646d56bb65621.setContent(html_3a3053bd4adfc16a96611c2124f63b26);
             
         
 
-        marker_a0b97b8597ff3004893958ce0443ae92.bindPopup(popup_ca17ac382043917a5556f0588e3e8f0f)
+        marker_f7411d4ab5aa473852f3fc4f3e2c9030.bindPopup(popup_c2f2329743ed9948b79646d56bb65621)
         ;
 
         
     
     
-            marker_a0b97b8597ff3004893958ce0443ae92.bindTooltip(
+            marker_f7411d4ab5aa473852f3fc4f3e2c9030.bindTooltip(
                 `<div>
                      Riemst | € 329.000
                  </div>`,
@@ -1607,28 +1805,28 @@
             );
         
     
-            var marker_bb59235e7b4d0505299a2b3989b4b901 = L.marker(
+            var marker_58d1c6e8e03ea9e56b611269f0c88450 = L.marker(
                 [50.8036484, 5.5857068],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_5a0b1f552d0df0721e5c1fabca30d759 = L.popup({"maxWidth": 380});
+        var popup_83ef670d62612ebf1245687bb0e5e16d = L.popup({"maxWidth": 420});
 
         
             
-                var html_3c93b6f1fbea6dd6704125f6e3d2f27c = $(`<div id="html_3c93b6f1fbea6dd6704125f6e3d2f27c" style="width: 100.0%; height: 100.0%;"><b>Huis</b><br>€ 352.000<br><i>Riemst</i> — 17.3 km<br>3770 Riemst<br><br><a href='https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21318011' target='_blank'>link</a></div>`)[0];
-                popup_5a0b1f552d0df0721e5c1fabca30d759.setContent(html_3c93b6f1fbea6dd6704125f6e3d2f27c);
+                var html_733776a3eddf9dc2a20c45d346f7c356 = $(`<div id="html_733776a3eddf9dc2a20c45d346f7c356" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Huis</b></div>           <div class="popup-meta">€ 352.000</div>           <div class="popup-meta"><i>Riemst</i> — 17.3 km</div>           <div class="popup-meta">3770 Riemst</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21318011" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.8036484, 5.5857068); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.8036484,5.5857068" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21318011'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_83ef670d62612ebf1245687bb0e5e16d.setContent(html_733776a3eddf9dc2a20c45d346f7c356);
             
         
 
-        marker_bb59235e7b4d0505299a2b3989b4b901.bindPopup(popup_5a0b1f552d0df0721e5c1fabca30d759)
+        marker_58d1c6e8e03ea9e56b611269f0c88450.bindPopup(popup_83ef670d62612ebf1245687bb0e5e16d)
         ;
 
         
     
     
-            marker_bb59235e7b4d0505299a2b3989b4b901.bindTooltip(
+            marker_58d1c6e8e03ea9e56b611269f0c88450.bindTooltip(
                 `<div>
                      Riemst | € 352.000
                  </div>`,
@@ -1636,28 +1834,28 @@
             );
         
     
-            var marker_5923028da5fd90be3761df422a70e88c = L.marker(
+            var marker_6d19f718dc8936cd39d0e44f296abaca = L.marker(
                 [50.8036484, 5.5857068],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_c4acec6112b5f0287c54705fa111f67c = L.popup({"maxWidth": 380});
+        var popup_10f6e5000c3ea951cd919d32383a7c10 = L.popup({"maxWidth": 420});
 
         
             
-                var html_ffc2dd8cfe7c4e34939552c682c8fb94 = $(`<div id="html_ffc2dd8cfe7c4e34939552c682c8fb94" style="width: 100.0%; height: 100.0%;"><b>Huis</b><br>€ 349.000<br><i>Riemst</i> — 17.3 km<br>3770 Riemst<br><br><a href='https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21291574' target='_blank'>link</a></div>`)[0];
-                popup_c4acec6112b5f0287c54705fa111f67c.setContent(html_ffc2dd8cfe7c4e34939552c682c8fb94);
+                var html_47bd18452a4b2166954fbd4b6335b20a = $(`<div id="html_47bd18452a4b2166954fbd4b6335b20a" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Huis</b></div>           <div class="popup-meta">€ 349.000</div>           <div class="popup-meta"><i>Riemst</i> — 17.3 km</div>           <div class="popup-meta">3770 Riemst</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21291574" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.8036484, 5.5857068); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.8036484,5.5857068" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21291574'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_10f6e5000c3ea951cd919d32383a7c10.setContent(html_47bd18452a4b2166954fbd4b6335b20a);
             
         
 
-        marker_5923028da5fd90be3761df422a70e88c.bindPopup(popup_c4acec6112b5f0287c54705fa111f67c)
+        marker_6d19f718dc8936cd39d0e44f296abaca.bindPopup(popup_10f6e5000c3ea951cd919d32383a7c10)
         ;
 
         
     
     
-            marker_5923028da5fd90be3761df422a70e88c.bindTooltip(
+            marker_6d19f718dc8936cd39d0e44f296abaca.bindTooltip(
                 `<div>
                      Riemst | € 349.000
                  </div>`,
@@ -1665,28 +1863,28 @@
             );
         
     
-            var marker_7f98e5e31743497509c82299d2b7e48a = L.marker(
+            var marker_65b462e436142e9a943aeab66efd3073 = L.marker(
                 [50.8036484, 5.5857068],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_30e45e997e961dbdecb89e2762c6194e = L.popup({"maxWidth": 380});
+        var popup_9600e2958ba4eca94d1f8af4b236d299 = L.popup({"maxWidth": 420});
 
         
             
-                var html_1bde4d503d323a03e7d28df40770fa3c = $(`<div id="html_1bde4d503d323a03e7d28df40770fa3c" style="width: 100.0%; height: 100.0%;"><b>Huis</b><br>€ 295.000<br><i>Riemst</i> — 17.3 km<br>3770 Riemst<br><br><a href='https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21245285' target='_blank'>link</a></div>`)[0];
-                popup_30e45e997e961dbdecb89e2762c6194e.setContent(html_1bde4d503d323a03e7d28df40770fa3c);
+                var html_4c6fc3d6f7d224acafb61601a0403a9d = $(`<div id="html_4c6fc3d6f7d224acafb61601a0403a9d" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Huis</b></div>           <div class="popup-meta">€ 295.000</div>           <div class="popup-meta"><i>Riemst</i> — 17.3 km</div>           <div class="popup-meta">3770 Riemst</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21245285" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.8036484, 5.5857068); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.8036484,5.5857068" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.immoweb.be/nl/zoekertje/huis/te-koop/riemst/3770/21245285'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_9600e2958ba4eca94d1f8af4b236d299.setContent(html_4c6fc3d6f7d224acafb61601a0403a9d);
             
         
 
-        marker_7f98e5e31743497509c82299d2b7e48a.bindPopup(popup_30e45e997e961dbdecb89e2762c6194e)
+        marker_65b462e436142e9a943aeab66efd3073.bindPopup(popup_9600e2958ba4eca94d1f8af4b236d299)
         ;
 
         
     
     
-            marker_7f98e5e31743497509c82299d2b7e48a.bindTooltip(
+            marker_65b462e436142e9a943aeab66efd3073.bindTooltip(
                 `<div>
                      Riemst | € 295.000
                  </div>`,
@@ -1694,28 +1892,28 @@
             );
         
     
-            var marker_995cc84839189f872cb5aa710e70beae = L.marker(
+            var marker_c37f78add81ffaecf2c335586ad225b4 = L.marker(
                 [50.7844721, 5.560302],
                 {}
-            ).addTo(marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55);
+            ).addTo(marker_cluster_23915efd72ae1cb7cdafc28a2baa1633);
         
     
-        var popup_3be1618766218f3dc7e2ecbaacdce704 = L.popup({"maxWidth": 380});
+        var popup_8b9082dda8614cc0f48f4c8a581160d7 = L.popup({"maxWidth": 420});
 
         
             
-                var html_e98f26a95d39e4a60283d3b7871269e9 = $(`<div id="html_e98f26a95d39e4a60283d3b7871269e9" style="width: 100.0%; height: 100.0%;"><b>Huis</b><br>€ 307.000<br><i>Riemst</i> — 19.8 km<br>3770 Millen<br><br><a href='https://www.immoweb.be/nl/zoekertje/huis/te-koop/millen/3770/21245284' target='_blank'>link</a></div>`)[0];
-                popup_3be1618766218f3dc7e2ecbaacdce704.setContent(html_e98f26a95d39e4a60283d3b7871269e9);
+                var html_3040ee12e28c3d16b3b64695a4c1445b = $(`<div id="html_3040ee12e28c3d16b3b64695a4c1445b" style="width: 100.0%; height: 100.0%;">         <div>           <div><b>Huis</b></div>           <div class="popup-meta">€ 307.000</div>           <div class="popup-meta"><i>Riemst</i> — 19.8 km</div>           <div class="popup-meta">3770 Millen</div>           <div class="popup-meta"></div>            <div class="popup-actions">             <a class="popup-btn popup-btn-primary" href="https://www.immoweb.be/nl/zoekertje/huis/te-koop/millen/3770/21245284" target="_blank">🔗 Listing</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._openRouteSmart(50.7844721, 5.560302); return false;">🧭 Route</a>              <a class="popup-btn popup-btn-soft" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=50.7844721,5.560302" target="_blank">👁️ Street View</a>              <a class="popup-btn popup-btn-soft" href="#"                onclick="window._copyText('https://www.immoweb.be/nl/zoekertje/huis/te-koop/millen/3770/21245284'); return false;">📋 Kopieer link</a>           </div>         </div>         </div>`)[0];
+                popup_8b9082dda8614cc0f48f4c8a581160d7.setContent(html_3040ee12e28c3d16b3b64695a4c1445b);
             
         
 
-        marker_995cc84839189f872cb5aa710e70beae.bindPopup(popup_3be1618766218f3dc7e2ecbaacdce704)
+        marker_c37f78add81ffaecf2c335586ad225b4.bindPopup(popup_8b9082dda8614cc0f48f4c8a581160d7)
         ;
 
         
     
     
-            marker_995cc84839189f872cb5aa710e70beae.bindTooltip(
+            marker_c37f78add81ffaecf2c335586ad225b4.bindTooltip(
                 `<div>
                      Riemst | € 307.000
                  </div>`,
@@ -1723,31 +1921,31 @@
             );
         
     
-            map_f4ec52dd73a3cb3056a5d6fe522c1925.fitBounds(
+            map_f0c81a53f21e8ecf2d733cafa534620a.fitBounds(
                 [[50.7636976, 5.560302], [51.0887664, 6.073462]],
                 {"padding": [20, 20]}
             );
         
     
-            var layer_control_09855c64fde049603abb5c94b043154a = {
+            var layer_control_b792e938d3966269e537848f7b7b7de8 = {
                 base_layers : {
-                    "OpenStreetMap" : tile_layer_6fe4ce0c9784649919a12197c5a74684,
-                    "Satelliet (Esri)" : tile_layer_5d25b6be6990e587501d2084da8a6d61,
+                    "OpenStreetMap" : tile_layer_58f0e6b03622f67ba32913d41f5052e1,
+                    "Satelliet (Esri)" : tile_layer_ca4d7d01037b8f454bd40b6885534611,
                 },
                 overlays :  {
-                    "Listings" : marker_cluster_40eeac8a4224dc5bacf43f32cfdfdb55,
+                    "Listings" : marker_cluster_23915efd72ae1cb7cdafc28a2baa1633,
                 },
             };
             L.control.layers(
-                layer_control_09855c64fde049603abb5c94b043154a.base_layers,
-                layer_control_09855c64fde049603abb5c94b043154a.overlays,
+                layer_control_b792e938d3966269e537848f7b7b7de8.base_layers,
+                layer_control_b792e938d3966269e537848f7b7b7de8.overlays,
                 {"autoZIndex": true, "collapsed": false, "position": "topright"}
-            ).addTo(map_f4ec52dd73a3cb3056a5d6fe522c1925);
-            tile_layer_5d25b6be6990e587501d2084da8a6d61.remove();
+            ).addTo(map_f0c81a53f21e8ecf2d733cafa534620a);
+            tile_layer_ca4d7d01037b8f454bd40b6885534611.remove();
         
     
         (function(){
-          var map = map_f4ec52dd73a3cb3056a5d6fe522c1925;
+          var map = map_f0c81a53f21e8ecf2d733cafa534620a;
           if(!map || !L || !L.Control || !L.Control.Geocoder) return;
 
           var geocoder = L.Control.geocoder({
@@ -1765,7 +1963,6 @@
           })
           .addTo(map);
 
-          // force top-center positioning
           var c = geocoder.getContainer();
           if(c){
             c.style.position = "fixed";
